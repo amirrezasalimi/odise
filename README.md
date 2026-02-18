@@ -5,10 +5,6 @@ Full open-source NotebookLM alternative
 ## Features
 - **Supported formats**: PDF, EPUB, TXT, DOCX, Excel, CSV, HTML, Markdown, Links
 
-## Local Models
-- **Pocket TTS** - [xn/wasm-pocket-tts](https://github.com/LaurentMazare/xn/tree/main/wasm-pocket-tts)
-- **Kokoro TTS** - [kokoro-js](https://www.npmjs.com/package/kokoro-js)
-
 ### Roadmap
 - Structure ✅
 - LLM Providers ✅
