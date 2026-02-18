@@ -12,7 +12,7 @@ const MainTab = () => {
     const setConfig = useMutation(api.apis.config.setConfig);
     const { contains } = useFilter({ sensitivity: "base" });
 
-    const selectedKey: Key | null = aiLanguage as Key | null;
+    const selectedKey: Key | null = (aiLanguage as Key | null) ?? "en";
 
     const handleLanguageChange = async (key: Key | Key[] | null) => {
         if (typeof key === "string") {
@@ -23,14 +23,14 @@ const MainTab = () => {
         }
     };
 
-    const selectedLanguage = LANGUAGES.find((lang) => lang.code === aiLanguage);
+    const selectedLanguage = LANGUAGES.find((lang) => lang.code === (aiLanguage ?? "en"));
 
     return (
         <div className="space-y-6">
             <div>
-                <h2 className="text-2xl font-semibold mb-2">AI Language Settings</h2>
+                <h2 className="text-2xl font-semibold mb-2">General</h2>
                 <p className="text-muted-foreground">
-                    Configure the language for AI interactions and responses.
+                    Configure general application settings and preferences.
                 </p>
             </div>
 
