@@ -1,0 +1,3 @@
+{
+  "extends": "@odise/config/tsconfig.base.json"
+}

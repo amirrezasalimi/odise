@@ -1,0 +1,11 @@
+{
+    "name": "@odise/kokoro-tts",
+    "version": "0.0.1",
+    "type": "module",
+    "main": "src/index.ts",
+    "types": "src/index.ts",
+    "dependencies": {
+        "@odise/types": "workspace:*",
+        "kokoro-js": "^1.2.0"
+    }
+}
