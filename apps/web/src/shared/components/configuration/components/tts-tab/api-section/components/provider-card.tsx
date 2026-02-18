@@ -57,6 +57,7 @@ export function ProviderCard({
                     provider={provider}
                     plugin={plugin}
                     expandedSpeakers={expandedSpeakers}
+                    selectedSpeakerId={selectedSpeakerId}
                     onToggleSpeakers={onToggleSpeakers}
                     onEdit={onEdit}
                     onDelete={onDelete}

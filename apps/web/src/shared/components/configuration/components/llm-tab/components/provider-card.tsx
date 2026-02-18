@@ -35,16 +35,6 @@ export function ProviderCard({
                     onDelete={onDelete}
                     onToggleEnabled={onToggleEnabled}
                 />
-
-                {/* Selected Model Chip */}
-                {selectedModel && (
-                    <div className="flex items-center gap-2">
-                        <Chip variant="secondary" size="sm">
-                            <span className="text-xs font-medium">Default: {selectedModel.name}</span>
-                        </Chip>
-                    </div>
-                )}
-
                 {/* Action Buttons */}
                 <div className="flex items-center gap-2">
                     <Tooltip>

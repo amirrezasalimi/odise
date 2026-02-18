@@ -1,4 +1,4 @@
-import { Button, Tooltip, Switch } from "@heroui/react";
+import { Button, Tooltip, Switch, Chip } from "@heroui/react";
 import clsx from "clsx";
 import { ArrowDownIcon } from "@/shared/components/icons/arrow-down";
 import { TrashIcon } from "lucide-react";
@@ -15,6 +15,7 @@ interface ProviderHeaderProps {
     };
     plugin: TTSProvider | undefined;
     expandedSpeakers: Record<string, boolean>;
+    selectedSpeakerId: string | undefined;
     onToggleSpeakers: (providerId: string) => void;
     onEdit: () => void;
     onDelete: () => void;
@@ -26,6 +27,7 @@ export function ProviderHeader({
     provider,
     plugin,
     expandedSpeakers,
+    selectedSpeakerId,
     onToggleSpeakers,
     onEdit,
     onDelete,
@@ -34,6 +36,14 @@ export function ProviderHeader({
 }: ProviderHeaderProps) {
     const hasError = provider.errorLoadingSpeakers || false;
     const combinedSpeakersCount = (provider.speakers?.length || 0) + (provider.customSpeakers?.length || 0);
+
+    // Find selected speaker (from API speakers or custom speakers)
+    const selectedSpeaker = selectedSpeakerId
+        ? provider.speakers?.find(s => s.id === selectedSpeakerId) ||
+        (selectedSpeakerId.startsWith('custom-')
+            ? { id: selectedSpeakerId, name: provider.customSpeakers?.[parseInt(selectedSpeakerId.split('-')[1])] }
+            : undefined)
+        : undefined;
 
     return (
         <div className="flex items-center justify-between gap-2">
@@ -73,6 +83,12 @@ export function ProviderHeader({
                         </div>
                     </Tooltip.Content>
                 </Tooltip>
+                {/* Selected speaker chip */}
+                {selectedSpeaker && (
+                    <Chip size="sm" variant="soft" className="text-xs">
+                        {selectedSpeaker.name}
+                    </Chip>
+                )}
                 {/* Speakers toggle button */}
                 {provider.enabled && combinedSpeakersCount > 0 && (
                     <Button

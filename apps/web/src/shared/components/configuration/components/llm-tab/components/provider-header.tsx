@@ -1,4 +1,4 @@
-import { Button, Tooltip, Switch, Label } from "@heroui/react";
+import { Button, Tooltip, Switch, Label, Chip } from "@heroui/react";
 import { TrashIcon } from "lucide-react";
 import { IconEdit } from "@tabler/icons-react";
 import type { ApiLLMProviderItem } from "@/shared/types/config";
@@ -16,6 +16,8 @@ export function ProviderHeader({
     onDelete,
     onToggleEnabled,
 }: ProviderHeaderProps) {
+    const selectedModel = provider.models?.find(m => m.id === provider.selectedModelId);
+
     return (
         <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2">
@@ -34,6 +36,12 @@ export function ProviderHeader({
                         </div>
                     </Tooltip.Content>
                 </Tooltip>
+                {/* Selected model chip */}
+                {selectedModel && (
+                    <Chip size="sm" variant="soft" className="text-xs">
+                        {selectedModel.name}
+                    </Chip>
+                )}
             </div>
             <div className="flex items-center gap-2">
                 {/* Enable/Disable Switch */}
