@@ -13,10 +13,10 @@ const usePlugins = () => {
     const [isLoadingPlugins, setIsLoadingPlugins] = useState(false);
 
     // Get TTS provider configs from Convex
-    const ttsConfigQuery = useQuery(api.apis.notebook.getConfig, {
+    const ttsConfigQuery = useQuery(api.apis.config.getConfig, {
         key: CONFIG_KEYS.api_tts_providers
     });
-    const llmConfigQuery = useQuery(api.apis.notebook.getConfig, {
+    const llmConfigQuery = useQuery(api.apis.config.getConfig, {
         key: CONFIG_KEYS.api_llm_providers
     });
 
@@ -32,9 +32,9 @@ const usePlugins = () => {
             .filter((instance) => instance.options?.isLocal);
 
         let nonLocalTTSPlugins: TTSProvider[] = [];
-        if (ttsConfigQuery?.value) {
+        if (ttsConfigQuery) {
             try {
-                const config = JSON.parse(ttsConfigQuery.value as string) as ApiTTSProvidersConfig;
+                const config = JSON.parse(ttsConfigQuery as string) as ApiTTSProvidersConfig;
                 nonLocalTTSPlugins = transformNonLocalConfigsToInstances(plugins_registry, config.providers);
             } catch (error) {
                 console.error("Failed to parse TTS providers config:", error);

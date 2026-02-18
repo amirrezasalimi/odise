@@ -8,14 +8,14 @@ export function useLLMProviders() {
     const [apiProviders, setApiProviders] = useState<ApiLLMProviderItem[]>([]);
     const [providersWithErrors, setProvidersWithErrors] = useState<Record<string, boolean>>({});
 
-    const configQuery = useQuery(api.apis.notebook.getConfig, { key: CONFIG_KEYS.api_llm_providers });
-    const setConfig = useMutation(api.apis.notebook.setConfig);
+    const configQuery = useQuery(api.apis.config.getConfig, { key: CONFIG_KEYS.api_llm_providers });
+    const setConfig = useMutation(api.apis.config.setConfig);
 
     // Load providers from config
     useEffect(() => {
-        if (configQuery?.value) {
+        if (configQuery) {
             try {
-                const config = JSON.parse(configQuery.value as string) as { providers: ApiLLMProviderItem[] };
+                const config = JSON.parse(configQuery as string) as { providers: ApiLLMProviderItem[] };
                 setApiProviders(config.providers.map(p => ({ ...p })));
             } catch (error) {
                 console.error("Failed to parse API LLM providers config:", error);
