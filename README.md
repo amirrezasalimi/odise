@@ -1,39 +1,51 @@
-# odise
+# Odise
 
-full open source noteboollm alternative
+Full open-source NotebookLM alternative
 
+## Features
+- **Supported formats**: PDF, EPUB, TXT, DOCX, Excel, CSV, HTML, Markdown, Links
 
-### features
-- Import: PDF, EPUB, TXT, DOCX, Excel, CSV, HTML, Markdown, Links
-- providers: kokoro-tts, pocket-tts
-- supported Items:
-    - Audio book reader [working on it]
-    - visualizer [soon]
-    - chat [soon]
-    - podcast [soon]
-    - Infography [soon]
-    - mindmap [soon]
-    - quiz [soon]
-    - research canvas [soon]
+## Local Models
+- **Pocket TTS** - [xn/wasm-pocket-tts](https://github.com/LaurentMazare/xn/tree/main/wasm-pocket-tts)
+- **Kokoro TTS** - [kokoro-js](https://www.npmjs.com/package/kokoro-js)
 
+## Roadmap
 
+### Configuration Modal
+- Structure ✅
+- LLM Providers ✅
+  - OpenAI compatible ✅
+- TTS Providers ✅
+  - Kokoro ✅
+  - OpenAI compatible ✅
+  - Pocket TTS
+- Main Config
+  - Default language
+- Add source
+  - File upload
+  - List UI & raw content modal
+  - Summarize with description + emoji
 
-# embeded models:
-- pocket-tts
-    - https://github.com/LaurentMazare/xn/tree/main/wasm-pocket-tts
-- kokoro-tts
-    - https://www.npmjs.com/package/kokoro-js
+### Hub
+- Audio overview
+  - Single person version
+  - Audio book reader [in progress]
+- Visualizer [soon]
+- Chat [soon]
+- Podcast [soon]
+- Infographics [soon]
+- Mindmap [soon]
+- Quiz [soon]
+- Research canvas [soon]
 
-- 
+## License
 
+MIT License - see LICENSE file for details
 
-### Roadmap
-- Configuration Modal
-    - LLM Providers
-    - TTS Providers
-    - Embedding Providers
+**Note**: You may not create commercial products or derivative works based on this project without explicit permission from the author.
 
-- Feature priority
-    - Audio overview
-    - Chat - simple over contents
-    - ...
+## Credits & Acknowledgments
+
+- Inspired by [Google's NotebookLM](https://notebooklm.google.com/)
+- TTS powered by [Kokoro](https://www.npmjs.com/package/kokoro-js) and [Pocket TTS](https://github.com/LaurentMazare/xn)
+- Built with React, Tailwind CSS, and Convex
