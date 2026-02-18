@@ -40,7 +40,7 @@ export const EditProviderModal = ({
                                     className="w-full"
                                     placeholder="Select a provider"
                                     variant="secondary"
-                                    selectedKey={provider?.id || ""}
+                                    selectedKey={provider?.pluginId || ""}
                                     onSelectionChange={(key) => {
                                         onProviderTypeChange(key as string);
                                     }}

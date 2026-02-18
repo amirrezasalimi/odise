@@ -27,6 +27,7 @@ const LLMTab = () => {
         handleInputChange,
         handleProviderTypeChange,
     } = useProviderModals({
+        apiProviders,
         setApiProviders,
         saveConfig,
         clearProviderError,
@@ -46,16 +47,16 @@ const LLMTab = () => {
         provider: ApiLLMProviderItem | null;
     }>({ isOpen: false, provider: null });
 
-    const handleToggleEnabled = async (providerUid: string) => {
+    const handleToggleEnabled = async (providerId: string) => {
         const updatedProviders = apiProviders.map(p =>
-            p.uid === providerUid ? { ...p, enabled: !p.enabled } : p
+            p.id === providerId ? { ...p, enabled: !p.enabled } : p
         );
         setApiProviders(updatedProviders);
         await saveConfig(updatedProviders);
         // Clear error flag when provider is re-enabled
-        const provider = updatedProviders.find(p => p.uid === providerUid);
+        const provider = updatedProviders.find(p => p.id === providerId);
         if (provider?.enabled) {
-            clearProviderError(providerUid);
+            clearProviderError(providerId);
         }
     };
 
@@ -76,7 +77,7 @@ const LLMTab = () => {
         const models = await fetchModels(modelsModal.provider);
         // Update provider with fetched models
         const updatedProviders = apiProviders.map(p =>
-            p.uid === modelsModal.provider!.uid ? { ...p, models } : p
+            p.id === modelsModal.provider!.id ? { ...p, models } : p
         );
         setApiProviders(updatedProviders);
         await saveConfig(updatedProviders);
@@ -90,7 +91,7 @@ const LLMTab = () => {
     const handleSaveModels = async (models: { name: string; id: string }[], selectedModelId?: string) => {
         if (!modelsModal.provider) return;
         const updatedProviders = apiProviders.map(p =>
-            p.uid === modelsModal.provider!.uid ? { ...p, models, selectedModelId } : p
+            p.id === modelsModal.provider!.id ? { ...p, models, selectedModelId } : p
         );
         setApiProviders(updatedProviders);
         await saveConfig(updatedProviders);
@@ -120,15 +121,15 @@ const LLMTab = () => {
                 <div className="space-y-4">
                     {apiProviders.map((provider) => (
                         <ProviderCard
-                            key={provider.uid}
+                            key={provider.id}
                             provider={provider}
                             onEdit={() => handleOpenEditModal(provider)}
-                            onDelete={() => handleDeleteProvider(provider.uid)}
-                            onToggleEnabled={() => handleToggleEnabled(provider.uid)}
+                            onDelete={() => handleDeleteProvider(provider.id)}
+                            onToggleEnabled={() => handleToggleEnabled(provider.id)}
                             onTest={() => handleTestProvider(provider)}
                             onOpenModels={() => handleOpenModelsModal(provider)}
-                            isTesting={isTesting[provider.uid] || false}
-                            testResult={testResults[provider.uid]}
+                            isTesting={isTesting[provider.id] || false}
+                            testResult={testResults[provider.id]}
                         />
                     ))}
                 </div>
@@ -149,7 +150,7 @@ const LLMTab = () => {
             <ModelsModal
                 isOpen={modelsModal.isOpen}
                 provider={modelsModal.provider}
-                isFetchingModels={isFetchingModels[modelsModal.provider?.uid || ""] || false}
+                isFetchingModels={isFetchingModels[modelsModal.provider?.id || ""] || false}
                 onOpenChange={handleCloseModelsModal}
                 onFetchModels={handleFetchModels}
                 onSave={handleSaveModels}

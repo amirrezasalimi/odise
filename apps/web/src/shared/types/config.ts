@@ -20,11 +20,11 @@ export interface ApiLLMProviderItem {
     apiKey: string;
     enabled: boolean;
     selectedModelId?: string;
-    uid: string
     models?: {
         name: string
         id: string
     }[]
+    pluginId: string
 }
 
 export interface ApiLLMProvidersConfig {

@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Modal, Button, Input, Label, Spinner } from "@heroui/react";
 import { PlusIcon, TrashIcon, Search, Check } from "lucide-react";
 import type { ApiLLMProviderItem } from "@/shared/types/config";
@@ -33,10 +33,15 @@ export const ModelsModal = ({
     const [newModelName, setNewModelName] = useState("");
 
     // Initialize custom models and selected model when provider changes
-    if (provider && customModels.length === 0 && provider.models) {
-        setCustomModels(provider.models.map(m => ({ id: m.id, name: m.name })));
-        setSelectedModelId(provider.selectedModelId || "");
-    }
+    useEffect(() => {
+        if (provider && provider.models) {
+            setCustomModels(provider.models.map(m => ({ id: m.id, name: m.name })));
+            setSelectedModelId(provider.selectedModelId || "");
+        } else {
+            setCustomModels([]);
+            setSelectedModelId("");
+        }
+    }, [provider?.id]); // Use provider.id as dependency to detect provider changes
 
     // Filter models based on search query
     const filteredModels = useMemo(() => {

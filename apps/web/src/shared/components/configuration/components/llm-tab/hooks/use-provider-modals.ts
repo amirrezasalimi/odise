@@ -3,6 +3,11 @@ import OpenAI from "openai";
 import type { ApiLLMProviderItem } from "@/shared/types/config";
 import { LLM_PROVIDER_TYPES } from "../constants/provider-types";
 
+// Helper function to generate a short random ID
+function generateShortId(): string {
+    return Math.random().toString(36).substr(2, 9);
+}
+
 export interface EditModalState {
     isOpen: boolean;
     provider: ApiLLMProviderItem | null;
@@ -10,6 +15,7 @@ export interface EditModalState {
 }
 
 interface UseProviderModalsProps {
+    apiProviders: ApiLLMProviderItem[];
     setApiProviders: React.Dispatch<React.SetStateAction<ApiLLMProviderItem[]>>;
     saveConfig: (providers: ApiLLMProviderItem[]) => Promise<void>;
     clearProviderError: (providerId: string) => void;
@@ -35,6 +41,7 @@ async function fetchModels(provider: ApiLLMProviderItem): Promise<{ name: string
 }
 
 export function useProviderModals({
+    apiProviders,
     setApiProviders,
     saveConfig,
     clearProviderError,
@@ -45,8 +52,8 @@ export function useProviderModals({
     const handleOpenAddModal = () => {
         const firstProviderType = LLM_PROVIDER_TYPES[0];
         const defaultProvider = {
-            id: firstProviderType.id,
-            uid: crypto.randomUUID(),
+            id: generateShortId(),
+            pluginId: firstProviderType.id,
             name: firstProviderType.name,
             url: firstProviderType.defaultUrl,
             apiKey: "",
@@ -70,14 +77,14 @@ export function useProviderModals({
         }
     };
 
-    const handleProviderTypeChange = (providerId: string) => {
-        const providerType = LLM_PROVIDER_TYPES.find(p => p.id === providerId);
+    const handleProviderTypeChange = (pluginId: string) => {
+        const providerType = LLM_PROVIDER_TYPES.find(p => p.id === pluginId);
         if (providerType) {
             setEditModal(prev => ({
                 ...prev,
                 provider: prev.provider ? {
                     ...prev.provider,
-                    id: providerType.id,
+                    pluginId: providerType.id,
                     name: providerType.name,
                     url: providerType.defaultUrl,
                 } : null,
@@ -97,35 +104,27 @@ export function useProviderModals({
             providerToSave = { ...providerToSave, models };
         }
 
+        // Compute updated providers synchronously
         let updatedProviders: ApiLLMProviderItem[];
-
         if (editModal.isEditing) {
-            setApiProviders((prev: ApiLLMProviderItem[]) => {
-                updatedProviders = prev.map(p =>
-                    p.uid === providerToSave.uid ? providerToSave : p
-                );
-                return updatedProviders;
-            });
+            updatedProviders = apiProviders.map(p =>
+                p.id === providerToSave.id ? providerToSave : p
+            );
         } else {
-            setApiProviders((prev: ApiLLMProviderItem[]) => {
-                updatedProviders = [...prev, providerToSave];
-                return updatedProviders;
-            });
+            updatedProviders = [...apiProviders, providerToSave];
         }
 
-        await saveConfig(updatedProviders!);
-        clearProviderError(providerToSave.uid);
+        setApiProviders(updatedProviders);
+        await saveConfig(updatedProviders);
+        clearProviderError(providerToSave.id);
         handleCloseEditModal();
         setIsSaving(false);
     };
 
-    const handleDeleteProvider = async (providerUid: string) => {
-        let updatedProviders: ApiLLMProviderItem[];
-        setApiProviders((prev: ApiLLMProviderItem[]) => {
-            updatedProviders = prev.filter(p => p.uid !== providerUid);
-            return updatedProviders;
-        });
-        await saveConfig(updatedProviders!);
+    const handleDeleteProvider = async (providerId: string) => {
+        const updatedProviders = apiProviders.filter(p => p.id !== providerId);
+        setApiProviders(updatedProviders);
+        await saveConfig(updatedProviders);
     };
 
     const handleInputChange = (field: keyof ApiLLMProviderItem, value: string | boolean) => {

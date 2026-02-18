@@ -31,9 +31,9 @@ export function useLLMProviders() {
         });
     };
 
-    const updateProvider = (providerUid: string, updates: Partial<ApiLLMProviderItem>) => {
+    const updateProvider = (providerId: string, updates: Partial<ApiLLMProviderItem>) => {
         const updatedProviders = apiProviders.map(p =>
-            p.uid === providerUid ? { ...p, ...updates } : p
+            p.id === providerId ? { ...p, ...updates } : p
         );
         setApiProviders(updatedProviders);
         return updatedProviders;
@@ -45,15 +45,15 @@ export function useLLMProviders() {
         return updatedProviders;
     };
 
-    const removeProvider = (providerUid: string) => {
-        const updatedProviders = apiProviders.filter(p => p.uid !== providerUid);
+    const removeProvider = (providerId: string) => {
+        const updatedProviders = apiProviders.filter(p => p.id !== providerId);
         setApiProviders(updatedProviders);
         return updatedProviders;
     };
 
-    const clearProviderError = (providerUid: string) => {
+    const clearProviderError = (providerId: string) => {
         setProvidersWithErrors(prev => {
-            const { [providerUid]: _, ...rest } = prev;
+            const { [providerId]: _, ...rest } = prev;
             return rest;
         });
     };

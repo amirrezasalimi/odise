@@ -13,7 +13,7 @@ export function useProviderActions() {
     const [testResults, setTestResults] = useState<Record<string, { success: boolean; message: string }>>({});
 
     const testProvider = async (provider: ApiLLMProviderItem): Promise<{ success: boolean; message: string }> => {
-        setIsTesting(prev => ({ ...prev, [provider.uid]: true }));
+        setIsTesting(prev => ({ ...prev, [provider.id]: true }));
 
         try {
             const client = new OpenAI({
@@ -26,20 +26,20 @@ export function useProviderActions() {
             await client.models.list();
 
             const result = { success: true, message: "Connection successful" };
-            setTestResults(prev => ({ ...prev, [provider.uid]: result }));
+            setTestResults(prev => ({ ...prev, [provider.id]: result }));
             return result;
         } catch (error) {
             const message = error instanceof Error ? error.message : "Connection failed";
             const result = { success: false, message };
-            setTestResults(prev => ({ ...prev, [provider.uid]: result }));
+            setTestResults(prev => ({ ...prev, [provider.id]: result }));
             return result;
         } finally {
-            setIsTesting(prev => ({ ...prev, [provider.uid]: false }));
+            setIsTesting(prev => ({ ...prev, [provider.id]: false }));
         }
     };
 
     const fetchModels = async (provider: ApiLLMProviderItem): Promise<Model[]> => {
-        setIsFetchingModels(prev => ({ ...prev, [provider.uid]: true }));
+        setIsFetchingModels(prev => ({ ...prev, [provider.id]: true }));
 
         try {
             const client = new OpenAI({
@@ -59,7 +59,7 @@ export function useProviderActions() {
             console.error("Failed to fetch models:", error);
             return [];
         } finally {
-            setIsFetchingModels(prev => ({ ...prev, [provider.uid]: false }));
+            setIsFetchingModels(prev => ({ ...prev, [provider.id]: false }));
         }
     };
 
