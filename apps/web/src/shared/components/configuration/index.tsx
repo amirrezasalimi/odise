@@ -11,6 +11,7 @@ import {
 import { useState } from "react";
 import TTSProvidersTab from "./components/tts-tab";
 import LLMTab from "./components/llm-tab";
+import MainTab from "./components/main-tab";
 
 const tabs = [
     { id: "main", label: "Main", icon: Home },
@@ -77,15 +78,7 @@ const ConfigurationModal = () => {
                             {/* Right Content Area */}
                             <div className="flex-1 p-5 overflow-y-auto">
                                 {selectedTab === "main" && (
-                                    <div>
-                                        <h3 className="text-base font-semibold mb-1.5">Main Settings</h3>
-                                        <p className="text-sm text-muted-foreground mb-5">
-                                            Configure your general application preferences
-                                        </p>
-                                        <p className="text-sm text-muted-foreground">
-                                            Main configuration options will appear here
-                                        </p>
-                                    </div>
+                                    <MainTab />
                                 )}
 
                                 {selectedTab === "tts" && (

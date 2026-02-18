@@ -8,6 +8,7 @@
  * @module
  */
 
+import type * as apis_config from "../apis/config.js";
 import type * as apis_dashboard from "../apis/dashboard.js";
 import type * as apis_notebook from "../apis/notebook.js";
 import type * as healthCheck from "../healthCheck.js";
@@ -19,6 +20,7 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  "apis/config": typeof apis_config;
   "apis/dashboard": typeof apis_dashboard;
   "apis/notebook": typeof apis_notebook;
   healthCheck: typeof healthCheck;
