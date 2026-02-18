@@ -11,7 +11,7 @@ Full open-source NotebookLM alternative
 
 ## Roadmap
 
-### Configuration Modal
+### Roadmap
 - Structure ✅
 - LLM Providers ✅
   - OpenAI compatible ✅
