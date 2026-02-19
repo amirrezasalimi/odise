@@ -1,12 +1,8 @@
 import type { TTSProvider } from "@odise/types";
 
-export interface ProviderConfig {
-    apiKey: string;
-    url: string;
-}
-
 export interface ProviderItem {
-    id: string;
+    id: string; // The specific instance ID (nanoid)
+    pluginId: string; // The plugin type ID (e.g. "elevenlabs")
     apiKey: string;
     url: string;
     enabled: boolean;
@@ -18,7 +14,6 @@ export interface PluginClass {
 
 /**
  * Transforms non-local provider configs into plugin instances.
- * Finds plugins based on registry id and matches with config row id.
  */
 export const transformNonLocalConfigsToInstances = (
     pluginRegistry: PluginClass[],
@@ -31,7 +26,7 @@ export const transformNonLocalConfigsToInstances = (
 
         const PluginClass = pluginRegistry.find((p: PluginClass) => {
             const temp = new p();
-            return (temp as any).info?.id === providerConfig.id;
+            return (temp as any).info?.id === providerConfig.pluginId;
         });
 
         if (!PluginClass) return;
@@ -43,6 +38,8 @@ export const transformNonLocalConfigsToInstances = (
                 url: providerConfig.url,
             });
         }
+        // Attach the instance ID and plugin ID to the instance for later reference if needed
+        instance.instanceId = providerConfig.id;
         instances.push(instance);
     });
 

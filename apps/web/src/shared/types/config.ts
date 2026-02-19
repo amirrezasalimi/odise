@@ -6,7 +6,7 @@ export interface ApiTTSProviderItem {
     enabled: boolean;
     selectedModelId?: string;
     customSpeakers: string[];
-    uid: string
+    pluginId: string
 }
 
 export interface ApiTTSProvidersConfig {

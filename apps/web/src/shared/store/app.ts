@@ -1,73 +1,25 @@
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
-import type { LoadedPlugins } from "@odise/plugins";
-import type { TTSProviderVariant, TTSProviderSpeaker } from "@odise/types";
-
-export interface TTSPluginState {
-    isLoading: boolean;
-    loadingProgress: number;
-    isLoaded: boolean;
-    variants: TTSProviderVariant[];
-    selectedVariant: string | undefined;
-    speakers: TTSProviderSpeaker[];
-}
+import type { TTSProvider } from "@odise/types";
 
 interface StateAndActions {
-    isConfigModalOpen: boolean;
-    toggleConfigModal: (open: boolean) => void;
-    plugins: LoadedPlugins
-    loadPlugins: (data: LoadedPlugins) => void
-
-    // tts
-    ttsPluginStates: Record<string, TTSPluginState>
-    updateTTSPluginState: (pluginId: string, updates: Partial<TTSPluginState>) => void
-    getTTSPluginState: (pluginId: string) => TTSPluginState
+    localTTS: Record<string, TTSProvider>;
+    setLocalTTS: (pluginId: string, instance: TTSProvider) => void;
+    removeLocalTTS: (pluginId: string) => void;
 }
 
 const useAppStore = create<StateAndActions>()(
-    immer((set, get) => ({
-        plugins: {
-            tts: []
-        },
-        ttsPluginStates: {},
-        isConfigModalOpen: false,
-        toggleConfigModal: (open) =>
+    immer((set) => ({
+        localTTS: {},
+        setLocalTTS: (pluginId, instance) =>
             set((state) => {
-                state.isConfigModalOpen = open;
+                state.localTTS[pluginId] = instance;
             }),
-        loadPlugins: (data: LoadedPlugins) =>
+        removeLocalTTS: (pluginId) =>
             set((state) => {
-                state.plugins = data;
+                delete state.localTTS[pluginId];
             }),
-        updateTTSPluginState: (pluginId: string, updates: Partial<TTSPluginState>) =>
-            set((state) => {
-                const currentState = state.ttsPluginStates[pluginId];
-                state.ttsPluginStates[pluginId] = currentState
-                    ? { ...currentState, ...updates }
-                    : {
-                        isLoading: false,
-                        loadingProgress: 0,
-                        isLoaded: false,
-                        variants: [],
-                        selectedVariant: undefined,
-                        speakers: [],
-                        ...updates,
-                    };
-            }),
-        getTTSPluginState: (pluginId: string) => {
-            const state = get().ttsPluginStates[pluginId];
-            if (state) return state;
-            return {
-                isLoading: false,
-                loadingProgress: 0,
-                isLoaded: false,
-                variants: [],
-                selectedVariant: undefined,
-                speakers: [],
-            };
-        }
     })),
-
 );
 
 export default useAppStore;

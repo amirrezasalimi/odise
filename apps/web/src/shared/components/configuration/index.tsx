@@ -1,11 +1,11 @@
 import { Modal, Button } from "@heroui/react";
 import useAppStore from "@/shared/store/app";
+import { useUIStore } from "@/shared/store/ui";
 import {
     Home,
     Mic,
     Brain,
     Github,
-    Plus,
     X
 } from "lucide-react";
 import { useState } from "react";
@@ -20,7 +20,7 @@ const tabs = [
 ] as const;
 
 const ConfigurationModal = () => {
-    const { isConfigModalOpen, toggleConfigModal } = useAppStore();
+    const { isConfigModalOpen, toggleConfigModal } = useUIStore();
     const [selectedTab, setSelectedTab] = useState("main");
 
     return (

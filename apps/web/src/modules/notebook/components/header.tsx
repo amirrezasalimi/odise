@@ -1,12 +1,12 @@
 import { LINKS } from "@/shared/constants/links";
-import useAppStore from "@/shared/store/app";
+import { useUIStore } from "@/shared/store/ui";
 import { Button } from "@heroui/react";
 import { IconNotebook } from "@tabler/icons-react";
 import { Link } from "@tanstack/react-router";
 import { ArrowLeft, PlusIcon, Settings2 } from "lucide-react";
 
 export const Header = () => {
-    const toggleConfigModal = useAppStore((state) => state.toggleConfigModal);
+    const toggleConfigModal = useUIStore((state) => state.toggleConfigModal);
 
     return (
         <div className="h-10 flex items-center  justify-between">

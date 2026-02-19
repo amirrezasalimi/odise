@@ -1,5 +1,6 @@
 import { Modal, Button, Label, TextArea } from "@heroui/react";
 import type { ApiTTSProviderItem } from "@/shared/types/config";
+import React from "react";
 
 interface CustomSpeakersModalProps {
     isOpen: boolean;
@@ -10,7 +11,7 @@ interface CustomSpeakersModalProps {
     onTextChange: (text: string) => void;
 }
 
-export const CustomSpeakersModal = ({
+const CustomSpeakersModal = ({
     isOpen,
     provider,
     customSpeakersText,
@@ -22,7 +23,7 @@ export const CustomSpeakersModal = ({
         <Modal>
             <Modal.Backdrop isOpen={isOpen} onOpenChange={onOpenChange}>
                 <Modal.Container>
-                    <Modal.Dialog className="sm:max-w-[420px]">
+                    <Modal.Dialog className="sm:max-w-105">
                         <Modal.CloseTrigger />
                         <Modal.Header>
                             <Modal.Heading>
@@ -37,7 +38,7 @@ export const CustomSpeakersModal = ({
                                     variant="secondary"
                                     onChange={(e) => onTextChange(e.target.value)}
                                     placeholder="Speaker 1&#10;Speaker 2&#10;Speaker 3"
-                                    className="w-full min-h-[200px]"
+                                    className="w-full min-h-50"
                                 />
                             </div>
                         </Modal.Body>
@@ -55,3 +56,5 @@ export const CustomSpeakersModal = ({
         </Modal>
     );
 };
+
+export default CustomSpeakersModal;
