@@ -8,13 +8,16 @@ export default defineSchema({
         description: v.string(),
     }),
     notebookSources: defineTable({
+        notebookId: v.id("notebooks"),
         name: v.string(),
         url: v.optional(v.string()),
         type: v.string(), // pdf, epub, html, markdown
         isProcessing: v.boolean(),
-        storageId: v.id("_storage"),
-        rawContent: v.string(),
-    }),
+        originalFileStorageId: v.optional(v.id("_storage")),
+        rawContentStorageId: v.optional(v.id("_storage")),
+        hasEmbedding: v.boolean(),
+        tokensCount: v.number(),
+    }).index("by_notebookId", ["notebookId"]),
     notebookSourceChunks: defineTable({
         notebookSourceId: v.id("notebookSources"),
         content: v.string(),
@@ -22,6 +25,7 @@ export default defineSchema({
         chunk: v.string(),
         embedding: v.array(v.float64()),
         embedding_done: v.boolean(),
+        tokenCount: v.number()
     }).vectorIndex("by_embedding", {
         vectorField: "embedding",
         dimensions: 1536,
