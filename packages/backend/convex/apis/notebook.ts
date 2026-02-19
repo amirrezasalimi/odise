@@ -50,3 +50,29 @@ export const generateUploadUrl = mutation({
         return await ctx.storage.generateUploadUrl();
     },
 });
+
+export const deleteSource = mutation({
+    args: { sourceId: v.id("notebookSources") },
+    handler: async (ctx, args) => {
+        const source = await ctx.db.get(args.sourceId);
+        if (!source) throw new Error("Source not found");
+
+        // Delete from storage if exists
+        if (source.originalFileStorageId) {
+            await ctx.storage.delete(source.originalFileStorageId);
+        }
+        if (source.rawContentStorageId) {
+            await ctx.storage.delete(source.rawContentStorageId);
+        }
+
+        await ctx.db.delete(args.sourceId);
+    },
+});
+
+export const getRawContentUrl = query({
+    args: { storageId: v.optional(v.id("_storage")) },
+    handler: async (ctx, args) => {
+        if (!args.storageId) return null;
+        return await ctx.storage.getUrl(args.storageId);
+    },
+});

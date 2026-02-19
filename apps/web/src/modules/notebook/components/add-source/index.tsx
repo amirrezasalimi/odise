@@ -1,18 +1,34 @@
 import {
     Modal,
     Button,
-    Input,
-    Label,
     Tabs,
     TextArea,
 } from "@heroui/react";
 import { useState, useRef } from "react";
 import { useMutation } from "convex/react";
 import { api } from "@odise/backend/convex/_generated/api";
-import { extractText, getDocumentProxy } from "unpdf";
+import pdf2md from "@opendocsg/pdf2md";
 import { estimateTokenCount } from "tokenx";
 import { toast } from "sonner";
 import { IconUpload, IconFileText, IconLoader2, IconX } from "@tabler/icons-react";
+
+/**
+ * Converts markdown content to plain text while preserving spacing.
+ * Strips headers, bold, italics, links, images, code blocks, and list prefixes.
+ */
+const markdownToText = (md: string) => {
+    return md
+        .replace(/<!--[\s\S]*?-->/g, '') // Remove HTML comments like <!-- PAGE_BREAK -->
+        .replace(/^#+\s+/gm, '') // Remove headers
+        .replace(/\*\*(.*?)\*\*/g, '$1') // Remove bold
+        .replace(/\*(.*?)\*/g, '$1') // Remove italic
+        .replace(/\[(.*?)\]\(.*?\)/g, '$1') // Remove links
+        .replace(/!\[(.*?)\]\(.*?\)/g, '$1') // Remove images
+        .replace(/`(.*?)`/g, '$1') // Remove inline code
+        .replace(/^>\s+/gm, '') // Remove quotes
+        .replace(/^\s*[-*+]\s+/gm, '') // Remove list bullets
+        .replace(/^\s*\d+\.\s+/gm, ''); // Remove numbered lists
+};
 
 interface AddSourceModalProps {
     isOpen: boolean;
@@ -28,7 +44,6 @@ export const AddSourceModal = ({
     const [activeTab, setActiveTab] = useState<string>("upload");
     const [isUploading, setIsUploading] = useState(false);
     const [rawText, setRawText] = useState("");
-    const [sourceName, setSourceName] = useState("");
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const generateUploadUrl = useMutation(api.apis.notebook.generateUploadUrl);
@@ -51,9 +66,8 @@ export const AddSourceModal = ({
             let extractedText = "";
 
             if (type === "pdf") {
-                const pdf = await getDocumentProxy(new Uint8Array(arrayBuffer));
-                const result = await extractText(pdf, { mergePages: true });
-                extractedText = result.text;
+                const md = await pdf2md(new Uint8Array(arrayBuffer));
+                extractedText = markdownToText(md);
             } else {
                 extractedText = new TextDecoder().decode(arrayBuffer);
             }
@@ -98,14 +112,21 @@ export const AddSourceModal = ({
     };
 
     const handleAddRawText = async () => {
-        if (!rawText.trim() || !sourceName.trim()) {
-            toast.error("Please provide a name and some text");
+        if (!rawText.trim()) {
+            toast.error("Please provide some text");
             return;
         }
 
         setIsUploading(true);
         try {
             const tokensCount = estimateTokenCount(rawText);
+
+            // Generate a name from the first line or use a default
+            const lines = rawText.trim().split('\n');
+            const firstLine = lines.find(l => l.trim().length > 0) || "Pasted Text";
+            const name = firstLine.length > 50
+                ? firstLine.slice(0, 47).trim() + "..."
+                : firstLine;
 
             const textBlob = new Blob([rawText], { type: "text/plain" });
             const uploadUrl = await generateUploadUrl();
@@ -118,7 +139,7 @@ export const AddSourceModal = ({
 
             await createSource({
                 notebookId,
-                name: sourceName,
+                name,
                 type: "raw",
                 rawContentStorageId,
                 tokensCount,
@@ -137,7 +158,6 @@ export const AddSourceModal = ({
 
     const resetForm = () => {
         setRawText("");
-        setSourceName("");
         if (fileInputRef.current) fileInputRef.current.value = "";
     };
 
@@ -151,18 +171,22 @@ export const AddSourceModal = ({
                         </Modal.CloseTrigger>
                         <Modal.Header>
                             <Modal.Heading>Add Source</Modal.Heading>
+                            <p className="text-xs text-muted-foreground/60 mt-1 font-normal">
+                                Add a document or paste text to your notebook.
+                            </p>
                         </Modal.Header>
-                        <Modal.Body className="p-4">
+                        <Modal.Body>
                             <Tabs
-                                variant="secondary"
+                                variant="primary"
                                 selectedKey={activeTab}
                                 onSelectionChange={(key) => setActiveTab(key as string)}
+                                className="w-full"
                             >
-                                <Tabs.List className="mb-4">
+                                <Tabs.List className="mb-1">
                                     <Tabs.Tab id="upload">
                                         <div className="flex items-center gap-2">
                                             <IconUpload className="size-4" />
-                                            <span>Upload</span>
+                                            <span>Upload File</span>
                                         </div>
                                     </Tabs.Tab>
                                     <Tabs.Tab id="text">
@@ -173,11 +197,13 @@ export const AddSourceModal = ({
                                     </Tabs.Tab>
                                 </Tabs.List>
 
-                                <Tabs.Panel id="upload">
-                                    <button
-                                        type="button"
-                                        className="w-full border-2 border-dashed border-border rounded-2xl p-8 flex flex-col items-center justify-center cursor-pointer hover:bg-accent/5 transition-colors min-h-50"
-                                        onClick={() => fileInputRef.current?.click()}
+                                <Tabs.Panel id="upload" className="outline-none">
+                                    <div
+                                        role="button"
+                                        tabIndex={0}
+                                        className="relative group w-full aspect-4/3 max-h-60 border border-dashed border-border/40 rounded-2xl flex flex-col items-center justify-center cursor-pointer hover:border-accent/40 hover:bg-accent/5 transition-all duration-300"
+                                        onClick={() => !isUploading && fileInputRef.current?.click()}
+                                        onKeyDown={(e) => e.key === 'Enter' && !isUploading && fileInputRef.current?.click()}
                                     >
                                         <input
                                             type="file"
@@ -187,50 +213,47 @@ export const AddSourceModal = ({
                                             onChange={handleFileUpload}
                                             disabled={isUploading}
                                         />
-                                        {isUploading ? (
-                                            <IconLoader2 className="size-10 animate-spin text-accent" />
-                                        ) : (
-                                            <IconUpload className="size-10 text-muted-foreground" />
-                                        )}
-                                        <p className="mt-4 font-medium">Click to upload or drag and drop</p>
-                                        <p className="text-xs text-muted-foreground mt-1">
-                                            PDF or TXT files supported
-                                        </p>
-                                    </button>
+
+                                        <div className="p-4 rounded-full bg-accent/5 group-hover:bg-accent/10 transition-colors mb-4">
+                                            {isUploading ? (
+                                                <IconLoader2 className="size-8 animate-spin text-accent" />
+                                            ) : (
+                                                <IconUpload className="size-8 text-muted-foreground/60 group-hover:text-accent transition-colors" />
+                                            )}
+                                        </div>
+
+                                        <div className="text-center">
+                                            <p className="font-medium text-sm mb-1 text-foreground">
+                                                {isUploading ? "Processing source..." : "Click to upload or drag & drop"}
+                                            </p>
+                                            <p className="text-xs text-muted-foreground/60">
+                                                Supports PDF and TXT files
+                                            </p>
+                                        </div>
+                                    </div>
                                 </Tabs.Panel>
 
-                                <Tabs.Panel id="text" className="space-y-4">
-                                    <div className="space-y-2">
-                                        <Label htmlFor="source-name">Source Name</Label>
-                                        <Input
-                                            id="source-name"
-                                            placeholder="My notes"
-                                            value={sourceName}
-                                            onChange={(e) => setSourceName(e.target.value)}
-                                            variant="secondary"
-                                            className="w-full"
-                                        />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label htmlFor="raw-text">Content</Label>
+                                <Tabs.Panel id="text" className="outline-none">
+                                    <div className="flex flex-col gap-4">
                                         <TextArea
                                             id="raw-text"
-                                            placeholder="Paste your text here..."
+                                            aria-label="Paste raw text"
+                                            placeholder="Paste your notes or text here..."
                                             value={rawText}
                                             onChange={(e) => setRawText(e.target.value)}
                                             variant="secondary"
-                                            className="w-full"
-                                            rows={6}
+                                            className="w-full min-h-55 font-sans text-sm"
+                                            rows={12}
                                         />
+                                        <Button
+                                            className="w-full"
+                                            variant="primary"
+                                            onPress={handleAddRawText}
+                                            isPending={isUploading}
+                                        >
+                                            Add Text Source
+                                        </Button>
                                     </div>
-                                    <Button
-                                        className="w-full"
-                                        variant="primary"
-                                        onPress={handleAddRawText}
-                                        isPending={isUploading}
-                                    >
-                                        Add Text Source
-                                    </Button>
                                 </Tabs.Panel>
                             </Tabs>
                         </Modal.Body>

@@ -32,6 +32,7 @@
         "@odise/env": "workspace:*",
         "@odise/kokoro-tts": "workspace:*",
         "@odise/openai-tts": "workspace:*",
+        "@opendocsg/pdf2md": "^0.2.4",
         "@orpc/client": "catalog:",
         "@orpc/server": "catalog:",
         "@orpc/tanstack-query": "^1.12.2",
@@ -454,6 +455,8 @@
     "@open-draft/logger": ["@open-draft/logger@0.3.0", "", { "dependencies": { "is-node-process": "^1.2.0", "outvariant": "^1.4.0" } }, "sha512-X2g45fzhxH238HKO4xbSr7+wBS8Fvw6ixhTDuvLd5mqh6bJJCFAPwU9mPDxbcrRtfxv4u5IHCEH77BmxvXmmxQ=="],
 
     "@open-draft/until": ["@open-draft/until@2.1.0", "", {}, "sha512-U69T3ItWHvLwGg5eJ0n3I62nWuE6ilHlmz7zM0npLBRvPRd7e6NYmg54vvRtP5mZG7kZqZCFVdsTWo7BPtBujg=="],
+
+    "@opendocsg/pdf2md": ["@opendocsg/pdf2md@0.2.4", "", { "dependencies": { "enumify": "^1.0.4", "minimist": "^1.2.5", "unpdf": "^1.4.0" }, "bin": { "pdf2md": "lib/pdf2md-cli.js" } }, "sha512-5zTeYFWqTVyiu05X1hwKj7UoCQikUHQfAxKYPOlBnVxmZAUmSU4aSt5YBRgYkE4jsd2h1/1CphWj86uJE/G7aw=="],
 
     "@orpc/client": ["@orpc/client@1.13.5", "", { "dependencies": { "@orpc/shared": "1.13.5", "@orpc/standard-server": "1.13.5", "@orpc/standard-server-fetch": "1.13.5", "@orpc/standard-server-peer": "1.13.5" } }, "sha512-j0VJpiWiFv9Xfan3NOoouHL07nSiHX8haxYaZzHYWSdWh+ABzwa8aRTwQSUpuCfD6i0EtYEZJAB6gVwtAnQoxQ=="],
 
@@ -1072,6 +1075,8 @@
     "encodeurl": ["encodeurl@2.0.0", "", {}, "sha512-Q0n9HRi4m6JuGIV1eFlmvJB7ZEVxu93IrMyiMsGC0lrMJMWzRgx6WGquyfQgZVb31vhGgXnfmPNNXmxnOkRBrg=="],
 
     "enhanced-resolve": ["enhanced-resolve@5.19.0", "", { "dependencies": { "graceful-fs": "^4.2.4", "tapable": "^2.3.0" } }, "sha512-phv3E1Xl4tQOShqSte26C7Fl84EwUdZsyOuSSk9qtAGyyQs2s3jJzComh+Abf4g187lUUAvH+H26omrqia2aGg=="],
+
+    "enumify": ["enumify@1.0.4", "", {}, "sha512-5mwWXaVzJaqyUdOW/PDH5QySRgmQ8VvujmxmvXoXj9w0n+6omhVuyD56eI37FMqy/LxueJzsQ4DrHVQzuT/TXg=="],
 
     "env-paths": ["env-paths@2.2.1", "", {}, "sha512-+h1lkLKhZMTYjog1VEpJNG7NZJWcuc2DDk/qsqSTRRCOXiLjeQ1d1/udrUGhqMxUgAlwKNZ0cf2uqan5GLuS2A=="],
 

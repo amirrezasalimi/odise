@@ -2,6 +2,7 @@ export interface LLMProviderType {
     id: string;
     name: string;
     defaultUrl: string;
+    pluginId?: string
 }
 
 export const LLM_PROVIDER_TYPES: LLMProviderType[] = [
