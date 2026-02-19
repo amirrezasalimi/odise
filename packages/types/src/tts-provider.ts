@@ -35,6 +35,7 @@ export interface SpeakOptions {
     speed?: number
     speakerId: string
     variantId?: string
+    stream?: boolean
 }
 
 export interface TTSProviderVariant {

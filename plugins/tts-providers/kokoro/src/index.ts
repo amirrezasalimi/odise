@@ -16,6 +16,7 @@ interface WorkerMessage {
     text?: string;
     voice?: string;
     speed?: number;
+    stream?: boolean;
 }
 
 interface WorkerResponse {
@@ -136,6 +137,7 @@ export default class KokoroTTSProvider extends TTSProvider {
                 text: options.text,
                 voice: options.speakerId,
                 speed: options.speed ?? 1,
+                stream: options?.stream ?? false,
             } satisfies WorkerMessage);
         });
     }

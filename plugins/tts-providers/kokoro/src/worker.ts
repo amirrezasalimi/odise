@@ -2,6 +2,7 @@ import { KokoroTTS, TextSplitterStream } from "kokoro-js";
 import { detectWebGPU } from "./utils";
 import { getVariantById } from "./config";
 
+
 // Worker context types
 // @ts-expect-error - Worker global scope
 declare const self: WorkerGlobalScope & typeof globalThis;
@@ -12,6 +13,7 @@ interface WorkerMessage {
     text?: string;
     voice?: string;
     speed?: number;
+    stream?: boolean;
 }
 
 
@@ -88,52 +90,33 @@ async function unloadWorker() {
 }
 
 // Process TTS generation
-async function processSpeak(text: string, voice: string, speed: number = 1) {
-    if (!tts) {
-        throw new Error("TTS model not initialized");
+
+async function processSpeak(text: string, voice: string, speed: number = 1, stream = false) {
+    if (!tts) throw new Error("TTS model not initialized");
+
+    if (!stream) {
+        const audio = await tts.generate(text, { voice: voice as any, speed });
+        self.postMessage({ status: "complete", audio: audio.toBlob() } satisfies WorkerResponse);
+        return;
     }
 
     const streamer = new TextSplitterStream();
     streamer.push(text);
     streamer.close();
 
-    const stream = tts.stream(streamer, { voice, speed });
-
-    const chunks: { audio: Blob; text: string }[] = [];
-
-    for await (const { text: chunkText, audio } of stream) {
-        const chunk = {
-            audio: audio.toBlob(),
-            text: chunkText,
-        };
+    for await (const { text: chunkText, audio } of tts.stream(streamer, { voice: voice as any, speed })) {
         self.postMessage({
             status: "stream",
-            chunk,
+            chunk: { audio: audio.toBlob(), text: chunkText },
         } satisfies WorkerResponse);
-        chunks.push(chunk);
     }
-
-    // Merge chunks
-    let audio: Blob | null = null;
-    if (chunks.length > 0) {
-        // The chunks already contain Blobs, so we just need to merge them
-        // For simplicity, we'll return the last chunk as the complete audio
-        // In a more sophisticated implementation, we would merge all blobs
-        const lastChunk = chunks[chunks.length - 1];
-        if (lastChunk) {
-            audio = lastChunk.audio;
-        }
-    }
-
-    self.postMessage({
-        status: "complete",
-        audio: audio ?? undefined,
-    } satisfies WorkerResponse);
+    self.postMessage({ status: "complete" } satisfies WorkerResponse);
 }
+
 
 // Listen for messages from the main thread
 self.addEventListener("message", async (e: MessageEvent<WorkerMessage>) => {
-    const { type, variantId, text, voice, speed } = e.data;
+    const { type, variantId, text, voice, speed, stream } = e.data;
 
     switch (type) {
         case "init":
@@ -141,7 +124,7 @@ self.addEventListener("message", async (e: MessageEvent<WorkerMessage>) => {
             break;
         case "speak":
             if (text && voice) {
-                await processSpeak(text, voice, speed);
+                await processSpeak(text, voice, speed, stream);
             }
             break;
         case "unload":
