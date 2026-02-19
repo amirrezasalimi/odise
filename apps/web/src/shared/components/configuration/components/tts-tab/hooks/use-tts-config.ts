@@ -1,7 +1,7 @@
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@odise/backend/convex/_generated/api";
 import { CONFIG_KEYS } from "@/shared/constants/config";
-import type { ApiTTSProvidersConfig, ApiTTSProviderItem } from "@/shared/types/config";
+import type { TTSProvidersConfig, TTSProviderItem } from "@/shared/types/config";
 import { nanoid } from "nanoid";
 import { plugins_registry } from "@/shared/constants/plugins";
 import { useMemo, useEffect, useCallback, useRef } from "react";
@@ -18,21 +18,21 @@ export const useTTSConfig = () => {
     const updateConfig = useMutation(api.apis.config.setConfig);
 
     const isLoaded = typeof ttsConfigRaw !== "undefined";
-    const refProviders = useRef<ApiTTSProviderItem[]>([]);
+    const refProviders = useRef<TTSProviderItem[]>([]);
 
     const storedProviders = useMemo(() => {
-        if (!isLoaded || !ttsConfigRaw) return [] as ApiTTSProviderItem[];
+        if (!isLoaded || !ttsConfigRaw) return [] as TTSProviderItem[];
         try {
-            const parsed = JSON.parse(ttsConfigRaw as string) as ApiTTSProvidersConfig;
+            const parsed = JSON.parse(ttsConfigRaw as string) as TTSProvidersConfig;
             // Filter out invalid entries (legacy or bugged)
             return (parsed.providers || []).filter(p => p.pluginId && p.id);
         } catch (e) {
-            return [] as ApiTTSProviderItem[];
+            return [] as TTSProviderItem[];
         }
     }, [ttsConfigRaw, isLoaded]);
 
     const providers = useMemo(() => {
-        if (!isLoaded) return [] as ApiTTSProviderItem[];
+        if (!isLoaded) return [] as TTSProviderItem[];
 
         const localPlugins = plugins_registry.filter(p => {
             try {
@@ -63,7 +63,7 @@ export const useTTSConfig = () => {
         return activeProviders;
     }, [storedProviders, isLoaded]);
 
-    const saveProviders = useCallback(async (newProviders: ApiTTSProviderItem[]) => {
+    const saveProviders = useCallback(async (newProviders: TTSProviderItem[]) => {
         if (!isLoaded) return;
 
         // Final sanity check: don't save empty pluginIds
@@ -87,7 +87,7 @@ export const useTTSConfig = () => {
 
     const addProvider = async (pluginId: string, name: string, url: string = "", apiKey: string = "") => {
         if (!isLoaded || !pluginId) return;
-        const newProvider: ApiTTSProviderItem = {
+        const newProvider: TTSProviderItem = {
             id: generateId(10),
             pluginId,
             name,
@@ -100,7 +100,7 @@ export const useTTSConfig = () => {
         await saveProviders(newList);
     };
 
-    const updateProvider = async (id: string, updates: Partial<ApiTTSProviderItem>) => {
+    const updateProvider = async (id: string, updates: Partial<TTSProviderItem>) => {
         if (!isLoaded) return;
         const newList = refProviders.current.map(p => p.id === id ? { ...p, ...updates } : p);
         await saveProviders(newList);

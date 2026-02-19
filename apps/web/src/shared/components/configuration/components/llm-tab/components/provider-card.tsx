@@ -1,10 +1,10 @@
 import { Card, Button, Tooltip, Spinner, Chip } from "@heroui/react";
 import { TestTube2, Database } from "lucide-react";
-import type { ApiLLMProviderItem } from "@/shared/types/config";
+import type { LLMProviderItem } from "@/shared/types/config";
 import { ProviderHeader } from "./provider-header";
 
 interface ProviderCardProps {
-    provider: ApiLLMProviderItem;
+    provider: LLMProviderItem;
     onEdit: () => void;
     onDelete: () => void;
     onToggleEnabled: () => void;

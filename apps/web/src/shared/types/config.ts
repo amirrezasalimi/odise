@@ -1,4 +1,4 @@
-export interface ApiTTSProviderItem {
+export interface TTSProviderItem {
     id: string;
     name: string;
     url: string;
@@ -9,15 +9,16 @@ export interface ApiTTSProviderItem {
     pluginId: string
 }
 
-export interface ApiTTSProvidersConfig {
-    providers: ApiTTSProviderItem[];
+export interface TTSProvidersConfig {
+    providers: TTSProviderItem[];
 }
+// llm
 
-export interface ApiLLMProviderItem {
+export interface LLMProviderItem {
     id: string;
     name: string;
-    url: string;
-    apiKey: string;
+    url?: string;
+    apiKey?: string;
     enabled: boolean;
     selectedModelId?: string;
     models?: {
@@ -27,6 +28,26 @@ export interface ApiLLMProviderItem {
     pluginId: string
 }
 
-export interface ApiLLMProvidersConfig {
-    providers: ApiLLMProviderItem[];
+export interface LLMProvidersConfig {
+    providers: LLMProviderItem[];
+}
+
+// embedding
+
+export interface EmbeddingProviderItem {
+    id: string
+    name: string;
+    url?: string;
+    apiKey?: string;
+    enabled: boolean;
+    selectedModelId?: string;
+    models?: {
+        name: string
+        id: string
+    }[]
+    pluginId: string
+}
+
+export interface EmbeddingProvidersConfig {
+    providers: LLMProviderItem[];
 }

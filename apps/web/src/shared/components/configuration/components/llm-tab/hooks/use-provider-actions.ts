@@ -1,6 +1,6 @@
 import { useState } from "react";
 import OpenAI from "openai";
-import type { ApiLLMProviderItem } from "@/shared/types/config";
+import type { LLMProviderItem } from "@/shared/types/config";
 
 export interface Model {
     id: string;
@@ -12,7 +12,7 @@ export function useProviderActions() {
     const [isFetchingModels, setIsFetchingModels] = useState<Record<string, boolean>>({});
     const [testResults, setTestResults] = useState<Record<string, { success: boolean; message: string }>>({});
 
-    const testProvider = async (provider: ApiLLMProviderItem): Promise<{ success: boolean; message: string }> => {
+    const testProvider = async (provider: LLMProviderItem): Promise<{ success: boolean; message: string }> => {
         setIsTesting(prev => ({ ...prev, [provider.id]: true }));
 
         try {
@@ -38,7 +38,7 @@ export function useProviderActions() {
         }
     };
 
-    const fetchModels = async (provider: ApiLLMProviderItem): Promise<Model[]> => {
+    const fetchModels = async (provider: LLMProviderItem): Promise<Model[]> => {
         setIsFetchingModels(prev => ({ ...prev, [provider.id]: true }));
 
         try {

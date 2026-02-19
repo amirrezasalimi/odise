@@ -2,10 +2,10 @@ import { useEffect, useState } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@odise/backend/convex/_generated/api";
 import { CONFIG_KEYS } from "@/shared/constants/config";
-import type { ApiLLMProviderItem } from "@/shared/types/config";
+import type { LLMProviderItem } from "@/shared/types/config";
 
 export function useLLMProviders() {
-    const [apiProviders, setApiProviders] = useState<ApiLLMProviderItem[]>([]);
+    const [apiProviders, setApiProviders] = useState<LLMProviderItem[]>([]);
     const [providersWithErrors, setProvidersWithErrors] = useState<Record<string, boolean>>({});
 
     const configQuery = useQuery(api.apis.config.getConfig, { key: CONFIG_KEYS.api_llm_providers });
@@ -15,7 +15,7 @@ export function useLLMProviders() {
     useEffect(() => {
         if (configQuery) {
             try {
-                const config = JSON.parse(configQuery as string) as { providers: ApiLLMProviderItem[] };
+                const config = JSON.parse(configQuery as string) as { providers: LLMProviderItem[] };
                 setApiProviders(config.providers.map(p => ({ ...p })));
             } catch (error) {
                 console.error("Failed to parse API LLM providers config:", error);
@@ -23,7 +23,7 @@ export function useLLMProviders() {
         }
     }, [configQuery]);
 
-    const saveConfig = async (providers: ApiLLMProviderItem[]) => {
+    const saveConfig = async (providers: LLMProviderItem[]) => {
         const config = { providers };
         await setConfig({
             key: CONFIG_KEYS.api_llm_providers,
@@ -31,7 +31,7 @@ export function useLLMProviders() {
         });
     };
 
-    const updateProvider = (providerId: string, updates: Partial<ApiLLMProviderItem>) => {
+    const updateProvider = (providerId: string, updates: Partial<LLMProviderItem>) => {
         const updatedProviders = apiProviders.map(p =>
             p.id === providerId ? { ...p, ...updates } : p
         );
@@ -39,7 +39,7 @@ export function useLLMProviders() {
         return updatedProviders;
     };
 
-    const addProvider = (provider: ApiLLMProviderItem) => {
+    const addProvider = (provider: LLMProviderItem) => {
         const updatedProviders = [...apiProviders, provider];
         setApiProviders(updatedProviders);
         return updatedProviders;

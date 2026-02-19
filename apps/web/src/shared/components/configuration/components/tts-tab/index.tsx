@@ -7,7 +7,7 @@ import { plugins_registry } from "@/shared/constants/plugins";
 import { Button, Spinner } from "@heroui/react";
 import CustomSpeakersModal from "./components/custom-speakers-modal";
 import type { TTSProvider } from "@odise/types";
-import type { ApiTTSProviderItem } from "@/shared/types/config";
+import type { TTSProviderItem } from "@/shared/types/config";
 import TTSItem from "./components/tts-item";
 import AddProviderModal from "./components/add-provider-modal";
 
@@ -18,7 +18,7 @@ const TTSTab = () => {
     const { isTesting, testSpeaker } = useProviderTest();
 
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-    const [editingProvider, setEditingProvider] = useState<ApiTTSProviderItem | null>(null);
+    const [editingProvider, setEditingProvider] = useState<TTSProviderItem | null>(null);
     const [isCustomModalOpen, setIsCustomModalOpen] = useState(false);
     const [customSpeakersText, setCustomSpeakersText] = useState("");
 
@@ -40,7 +40,7 @@ const TTSTab = () => {
         return <div className="flex justify-center p-8"><Spinner /></div>;
     }
 
-    const handleUpdateProvider = async (id: string, updates: Partial<ApiTTSProviderItem> & { _edit?: boolean, _customSpeakers?: boolean }) => {
+    const handleUpdateProvider = async (id: string, updates: Partial<TTSProviderItem> & { _edit?: boolean, _customSpeakers?: boolean }) => {
         const provider = providers.find(p => p.id === id);
         if (updates._edit) {
             if (provider) {

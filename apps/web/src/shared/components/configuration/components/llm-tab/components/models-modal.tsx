@@ -1,12 +1,12 @@
 import { useState, useMemo, useEffect } from "react";
 import { Modal, Button, Input, Label, Spinner } from "@heroui/react";
 import { PlusIcon, TrashIcon, Search, Check } from "lucide-react";
-import type { ApiLLMProviderItem } from "@/shared/types/config";
+import type { LLMProviderItem } from "@/shared/types/config";
 import type { Model } from "../hooks/use-provider-actions";
 
 interface ModelsModalProps {
     isOpen: boolean;
-    provider: ApiLLMProviderItem | null;
+    provider: LLMProviderItem | null;
     isFetchingModels: boolean;
     onOpenChange: (open: boolean) => void;
     onFetchModels: () => Promise<void>;

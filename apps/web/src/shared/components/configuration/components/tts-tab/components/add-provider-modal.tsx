@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { Modal, Button, Input, Select, Label, ListBox } from "@heroui/react";
-import type { ApiTTSProviderItem } from "@/shared/types/config";
+import type { TTSProviderItem } from "@/shared/types/config";
 
 interface AddProviderModalProps {
     isOpen: boolean;
     onOpenChange: (open: boolean) => void;
     pluginTypes: any[];
     onAdd: (pluginId: string, name: string, url: string, apiKey: string) => Promise<void>;
-    editProvider?: ApiTTSProviderItem | null;
-    onUpdate?: (id: string, updates: Partial<ApiTTSProviderItem>) => Promise<void>;
+    editProvider?: TTSProviderItem | null;
+    onUpdate?: (id: string, updates: Partial<TTSProviderItem>) => Promise<void>;
 }
 
 const AddProviderModal = ({

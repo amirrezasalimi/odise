@@ -1,10 +1,10 @@
 import { Modal, Button, Label, TextArea } from "@heroui/react";
-import type { ApiTTSProviderItem } from "@/shared/types/config";
+import type { TTSProviderItem } from "@/shared/types/config";
 import React from "react";
 
 interface CustomSpeakersModalProps {
     isOpen: boolean;
-    provider: ApiTTSProviderItem | null;
+    provider: TTSProviderItem | null;
     customSpeakersText: string;
     onOpenChange: (open: boolean) => void;
     onSave: () => void;

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button, Card } from "@heroui/react";
-import type { ApiLLMProviderItem } from "@/shared/types/config";
+import type { LLMProviderItem } from "@/shared/types/config";
 import { EditProviderModal } from "./components/edit-provider-modal";
 import { ModelsModal } from "./components/models-modal";
 import { ProviderCard } from "./components/provider-card";
@@ -44,7 +44,7 @@ const LLMTab = () => {
     // Models modal state
     const [modelsModal, setModelsModal] = useState<{
         isOpen: boolean;
-        provider: ApiLLMProviderItem | null;
+        provider: LLMProviderItem | null;
     }>({ isOpen: false, provider: null });
 
     const handleToggleEnabled = async (providerId: string) => {
@@ -60,11 +60,11 @@ const LLMTab = () => {
         }
     };
 
-    const handleTestProvider = async (provider: ApiLLMProviderItem) => {
+    const handleTestProvider = async (provider: LLMProviderItem) => {
         await testProvider(provider);
     };
 
-    const handleOpenModelsModal = (provider: ApiLLMProviderItem) => {
+    const handleOpenModelsModal = (provider: LLMProviderItem) => {
         setModelsModal({ isOpen: true, provider });
     };
 

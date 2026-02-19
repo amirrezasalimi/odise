@@ -1,6 +1,6 @@
 import { useState } from "react";
 import OpenAI from "openai";
-import type { ApiLLMProviderItem } from "@/shared/types/config";
+import type { LLMProviderItem } from "@/shared/types/config";
 import { LLM_PROVIDER_TYPES } from "../constants/provider-types";
 
 // Helper function to generate a short random ID
@@ -10,18 +10,18 @@ function generateShortId(): string {
 
 export interface EditModalState {
     isOpen: boolean;
-    provider: ApiLLMProviderItem | null;
+    provider: LLMProviderItem | null;
     isEditing: boolean;
 }
 
 interface UseProviderModalsProps {
-    apiProviders: ApiLLMProviderItem[];
-    setApiProviders: React.Dispatch<React.SetStateAction<ApiLLMProviderItem[]>>;
-    saveConfig: (providers: ApiLLMProviderItem[]) => Promise<void>;
+    apiProviders: LLMProviderItem[];
+    setApiProviders: React.Dispatch<React.SetStateAction<LLMProviderItem[]>>;
+    saveConfig: (providers: LLMProviderItem[]) => Promise<void>;
     clearProviderError: (providerId: string) => void;
 }
 
-async function fetchModels(provider: ApiLLMProviderItem): Promise<{ name: string; id: string }[]> {
+async function fetchModels(provider: LLMProviderItem): Promise<{ name: string; id: string }[]> {
     try {
         const client = new OpenAI({
             apiKey: provider.apiKey,
@@ -63,7 +63,7 @@ export function useProviderModals({
         setEditModal({ isOpen: true, provider: defaultProvider, isEditing: false });
     };
 
-    const handleOpenEditModal = (provider: ApiLLMProviderItem) => {
+    const handleOpenEditModal = (provider: LLMProviderItem) => {
         setEditModal({ isOpen: true, provider: { ...provider }, isEditing: true });
     };
 
@@ -105,7 +105,7 @@ export function useProviderModals({
         }
 
         // Compute updated providers synchronously
-        let updatedProviders: ApiLLMProviderItem[];
+        let updatedProviders: LLMProviderItem[];
         if (editModal.isEditing) {
             updatedProviders = apiProviders.map(p =>
                 p.id === providerToSave.id ? providerToSave : p
@@ -127,7 +127,7 @@ export function useProviderModals({
         await saveConfig(updatedProviders);
     };
 
-    const handleInputChange = (field: keyof ApiLLMProviderItem, value: string | boolean) => {
+    const handleInputChange = (field: keyof LLMProviderItem, value: string | boolean) => {
         setEditModal(prev => ({
             ...prev,
             provider: prev.provider ? { ...prev.provider, [field]: value } : null,

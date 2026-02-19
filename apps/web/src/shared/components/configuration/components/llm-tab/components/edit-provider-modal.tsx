@@ -1,14 +1,14 @@
 import { Modal, Button, Input, Label, Select, ListBox } from "@heroui/react";
-import type { ApiLLMProviderItem } from "@/shared/types/config";
+import type { LLMProviderItem } from "@/shared/types/config";
 import { LLM_PROVIDER_TYPES } from "../constants/provider-types";
 
 interface EditProviderModalProps {
     isOpen: boolean;
     isEditing: boolean;
-    provider: ApiLLMProviderItem | null;
+    provider: LLMProviderItem | null;
     onOpenChange: (open: boolean) => void;
     onSave: () => void;
-    onInputChange: (field: keyof ApiLLMProviderItem, value: string | boolean) => void;
+    onInputChange: (field: keyof LLMProviderItem, value: string | boolean) => void;
     onProviderTypeChange: (providerId: string) => void;
 }
 

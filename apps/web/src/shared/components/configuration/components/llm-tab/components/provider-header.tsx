@@ -1,10 +1,10 @@
 import { Button, Tooltip, Switch, Label, Chip } from "@heroui/react";
 import { TrashIcon } from "lucide-react";
 import { IconEdit } from "@tabler/icons-react";
-import type { ApiLLMProviderItem } from "@/shared/types/config";
+import type { LLMProviderItem } from "@/shared/types/config";
 
 interface ProviderHeaderProps {
-    provider: ApiLLMProviderItem;
+    provider: LLMProviderItem;
     onEdit: () => void;
     onDelete: () => void;
     onToggleEnabled: () => void;
