@@ -13,6 +13,7 @@ Full open-source NotebookLM alternative
   - Kokoro ✅
   - OpenAI compatible ✅
   - Pocket TTS
+  - Kitten TTS
 - Main Config
   - Default language
 - Add source
