@@ -55,7 +55,9 @@ export const useLocalEmbedding = () => {
                 });
             }
 
+            instance.selectedVariantId = modelId;
             setLocalEmbedding(id, instance);
+
         } catch (error) {
             console.error(`Failed to load local embedding ${id}:`, error);
         } finally {

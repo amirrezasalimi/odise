@@ -33,7 +33,9 @@ export const useLocalTTS = () => {
                     setLoadingProgress(prev => ({ ...prev, [pluginId]: progress }));
                 });
             }
+            instance.selectedVariantId = variantId;
             setLocalTTS(pluginId, instance);
+
         } catch (error) {
             console.error(`Failed to load local TTS ${pluginId}:`, error);
         } finally {

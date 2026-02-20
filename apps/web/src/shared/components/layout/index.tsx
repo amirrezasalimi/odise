@@ -4,7 +4,7 @@ import { env } from "@odise/env/web";
 import ConfigurationModal from '../configuration';
 import PluginLoaderWrapper from './plugin-loader';
 
-const convex = new ConvexReactClient(env.VITE_CONVEX_URL);
+export const convex = new ConvexReactClient(env.VITE_CONVEX_URL);
 
 export const Layout = ({
     children

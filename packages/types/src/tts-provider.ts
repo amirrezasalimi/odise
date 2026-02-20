@@ -52,16 +52,14 @@ export interface TTSProviderConfig {
 
 export abstract class TTSProvider extends Plugin {
     abstract options?: TTSOptions;
+    selectedVariantId?: string;
 
     abstract getSpeakers(): Promise<TTSProviderSpeaker[]>;
     abstract speak(options: SpeakOptions): Promise<TTSSpeakResult>;
     cloneVoice?(text: string, voice: Blob): Promise<TTSSpeakResult>;
 
-    // for embeded models
     loadVariants?(): Promise<TTSProviderVariant[]>;
     load?(variantId?: string, onProgress?: (progress: number) => void): Promise<void>;
     unload?(): Promise<void>;
-
-    // for API providers - set configuration (API key, URL, etc.)
     setConfig?(config: TTSProviderConfig): void;
 }

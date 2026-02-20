@@ -25,14 +25,14 @@ export interface EmbeddingProviderConfig {
 
 export abstract class EmbeddingProvider<C = any> extends Plugin {
     abstract options?: EmbeddingOptions;
+    selectedVariantId?: string;
+
     abstract embed(text: string): Promise<EmbeddingResult>;
 
-    // for local models
     loadVariants?(): Promise<EmbeddingProviderVariant[]>;
     load?(variantId?: string, onProgress?: (progress: number) => void): Promise<void>;
     unload?(): Promise<void>;
-
-    // for API providers
     setConfig?(config: C): void;
 }
+
 
