@@ -28,8 +28,8 @@ const MainTab = () => {
     return (
         <div className="space-y-6">
             <div>
-                <h2 className="text-2xl font-semibold mb-2">General</h2>
-                <p className="text-muted-foreground">
+                <h2 className="text-base font-semibold mb-1.5">General</h2>
+                <p className="text-sm text-muted">
                     Configure general application settings and preferences.
                 </p>
             </div>

@@ -13,3 +13,14 @@ export const plugins_registry: ProviderClass[] = [
     // embedding
     SimpleEmbeddingProvider
 ]
+
+export const DEFAULT_EMBEDDING_MODELS = [
+    {
+        id: "granite-30m",
+        name: "Granite Embedding 30M",
+        modelId: "onnx-community/granite-embedding-30m-english-ONNX",
+        dimension: 384,
+        pluginId: "transformers-embedding",
+    },
+];
+

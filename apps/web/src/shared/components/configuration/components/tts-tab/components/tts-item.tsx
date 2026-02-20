@@ -3,7 +3,7 @@ import clsx from "clsx";
 import React, { useEffect } from "react";
 import { ArrowDownIcon } from "@/shared/components/icons/arrow-down";
 import { HumanSpeakIcon } from "@/shared/components/icons/speak";
-import { TrashIcon } from "lucide-react";
+import { Play, TrashIcon } from "lucide-react";
 import { IconEdit } from "@tabler/icons-react";
 import type { TTSProvider, TTSProviderVariant, TTSProviderSpeaker } from "@odise/types";
 
@@ -93,7 +93,7 @@ const TTSItem = ({
 
     return (
         <Card variant="secondary" className="overflow-hidden">
-            <div className="flex items-start justify-between gap-2 p-4">
+            <div className="flex items-start justify-between gap-2">
                 <div className="flex flex-col gap-2">
                     <div className="flex items-center gap-2">
                         <span className={clsx("w-2 h-2 rounded-full", statusColor)} />
@@ -272,6 +272,9 @@ const TTSItem = ({
                             onPress={() => isLoaded ? onUnload?.() : onLoad?.(selectedVariant)}
                             className={clsx("relative", isLoaded ? "border border-white/50" : "")}
                         >
+                            {
+                                !isLoaded && <Play className="w-3.5 h-3.5 fill-current" />
+                            }
                             {isLoading ? (
                                 <span className="flex items-center gap-2">
                                     <Spinner size="sm" color="current" />

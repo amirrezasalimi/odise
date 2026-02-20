@@ -1,5 +1,6 @@
-import { Button, Tooltip, Switch } from "@heroui/react";
-import { Edit2, Trash2 } from "lucide-react";
+import { Button, Tooltip, Switch, Label, Chip } from "@heroui/react";
+import { TrashIcon } from "lucide-react";
+import { IconEdit } from "@tabler/icons-react";
 import type { EmbeddingProviderItem } from "@/shared/types/config";
 
 interface ProviderHeaderProps {
@@ -15,9 +16,35 @@ export function ProviderHeader({
     onDelete,
     onToggleEnabled,
 }: ProviderHeaderProps) {
+    const selectedModel = provider.models?.find(m => m.id === provider.selectedModelId);
+
     return (
-        <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
+        <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+                {/* Status indicator */}
+                <span className={`w-2 h-2 rounded-full ${provider.enabled ? 'bg-success' : 'bg-muted'}`} />
+                {/* Provider name */}
+                <Tooltip>
+                    <Tooltip.Trigger>
+                        <span className="text-base cursor-help">{provider.name}</span>
+                    </Tooltip.Trigger>
+                    <Tooltip.Content>
+                        <Tooltip.Arrow />
+                        <div className="space-y-1">
+                            <p className="text-sm">Embedding Provider</p>
+                            <p className="text-xs text-muted">{provider.url}</p>
+                        </div>
+                    </Tooltip.Content>
+                </Tooltip>
+                {/* Selected model chip */}
+                {selectedModel && (
+                    <Chip size="sm" variant="soft" className="text-xs">
+                        {selectedModel.name}
+                    </Chip>
+                )}
+            </div>
+            <div className="flex items-center gap-2">
+                {/* Enable/Disable Switch */}
                 <Switch
                     isSelected={provider.enabled}
                     onChange={onToggleEnabled}
@@ -27,22 +54,27 @@ export function ProviderHeader({
                         <Switch.Thumb />
                     </Switch.Control>
                 </Switch>
-                <div>
-                    <h4 className="text-sm font-medium">{provider.name}</h4>
-                    <p className="text-xs text-muted truncate max-w-50">
-                        {provider.url}
-                    </p>
-                </div>
-            </div>
-            <div className="flex items-center gap-1">
-                <Button size="sm" variant="ghost" onPress={onEdit}>
-                    <Edit2 className="w-3.5 h-3.5" />
+                {/* Edit button */}
+                <Button
+                    variant="tertiary"
+                    size="sm"
+                    isIconOnly
+                    onPress={onEdit}
+                    className="h-7 w-7 min-w-7"
+                >
+                    <IconEdit className="w-4 h-4" />
                 </Button>
-                <Button size="sm" variant="ghost" onPress={onDelete} className="text-danger">
-                    <Trash2 className="w-3.5 h-3.5" />
+                {/* Delete button */}
+                <Button
+                    variant="tertiary"
+                    size="sm"
+                    isIconOnly
+                    onPress={onDelete}
+                    className="h-7 w-7 min-w-7 text-danger hover:text-danger"
+                >
+                    <TrashIcon className="w-4 h-4" />
                 </Button>
             </div>
         </div>
     );
 }
-

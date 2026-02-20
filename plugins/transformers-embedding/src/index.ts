@@ -14,10 +14,10 @@ export default class TransformersEmbeddingProvider extends EmbeddingProvider<Tra
     info: PluginInfo = {
         type: "embedding",
         id: "transformers-embedding",
-        name: "Transformers Embedding",
+        name: "Local Transformers",
         author: "Odise",
         version: "1.0.0",
-        description: "A simple embedding plugin.",
+        description: "Run optimized embedding models locally using Transformer.js and ONNX runtime.",
     }
 
     options: EmbeddingOptions = {
@@ -73,7 +73,7 @@ export default class TransformersEmbeddingProvider extends EmbeddingProvider<Tra
 
     async load(_variantId?: string, onProgress?: (progress: number) => void): Promise<void> {
         if (!this.config) {
-            throw new Error("Configuration not set");
+            throw new Error("Configuration not set. Local model needs a model ID.");
         }
 
         if (this.isReady) return;
@@ -82,6 +82,10 @@ export default class TransformersEmbeddingProvider extends EmbeddingProvider<Tra
 
         return new Promise((resolve, reject) => {
             try {
+                if (this.worker) {
+                    this.worker.terminate();
+                }
+
                 this.worker = new Worker(
                     new URL("./worker.ts", import.meta.url),
                     { type: "module" }
@@ -124,8 +128,8 @@ export default class TransformersEmbeddingProvider extends EmbeddingProvider<Tra
                 this.worker.postMessage({
                     type: "init",
                     model: config.model,
-                    runtime: config.runtime,
-                    quantization: config.quantization,
+                    runtime: config.runtime || "wasm",
+                    quantization: config.quantization || "fp32",
                 } satisfies WorkerMessage);
             } catch (error) {
                 reject(error);
@@ -142,4 +146,6 @@ export default class TransformersEmbeddingProvider extends EmbeddingProvider<Tra
         this.isReady = false;
     }
 }
+
+
 

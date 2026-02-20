@@ -1,4 +1,4 @@
-import { Card, Button, Tooltip, Spinner } from "@heroui/react";
+import { Card, Button, Tooltip, Spinner, Chip } from "@heroui/react";
 import { TestTube2, Database } from "lucide-react";
 import type { EmbeddingProviderItem } from "@/shared/types/config";
 import { ProviderHeader } from "./provider-header";
@@ -33,6 +33,7 @@ export function ProviderCard({
                     onDelete={onDelete}
                     onToggleEnabled={onToggleEnabled}
                 />
+                {/* Action Buttons */}
                 <div className="flex items-center gap-2">
                     <Tooltip>
                         <Tooltip.Trigger>
@@ -78,6 +79,7 @@ export function ProviderCard({
                     </Tooltip>
                 </div>
 
+                {/* Test Result */}
                 {testResult && (
                     <div className={`text-sm p-2 rounded-md ${testResult.success ? 'bg-success/10 text-success' : 'bg-danger/10 text-danger'
                         }`}>

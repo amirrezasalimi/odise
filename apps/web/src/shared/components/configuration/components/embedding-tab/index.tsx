@@ -1,14 +1,18 @@
 import { useMemo, useState } from "react";
-import { Button, Card, Spinner } from "@heroui/react";
+import { Button, Card, Spinner, Separator } from "@heroui/react";
+import { Database } from "lucide-react";
 import type { EmbeddingProviderItem } from "@/shared/types/config";
 import { useEmbeddingProviders } from "./hooks/use-embedding-providers";
 import { useProviderActions } from "./hooks/use-provider-actions";
 import { useLocalEmbedding } from "./hooks/use-local-embedding";
 import { useProviderModals } from "./hooks/use-provider-modals";
-import { plugins_registry } from "@/shared/constants/plugins";
+import { DEFAULT_EMBEDDING_MODELS } from "@/shared/constants/plugins";
 import { EditProviderModal } from "./components/edit-provider-modal";
 import { ModelsModal } from "./components/models-modal";
 import { ProviderCard } from "./components/provider-card";
+import { useProviderData } from "./hooks/use-provider-data";
+import { LocalEmbeddingItem } from "./components/local-embedding-item";
+import { BenchmarkModal } from "./components/benchmark-modal";
 
 const EmbeddingTab = () => {
     const {
@@ -50,11 +54,24 @@ const EmbeddingTab = () => {
         unloadLocal
     } = useLocalEmbedding();
 
+    const { variants, loadVariants, isLoading: dataLoading } = useProviderData();
+
+    const externalProviders = useMemo(() => {
+        return apiProviders.filter(p => !DEFAULT_EMBEDDING_MODELS.find(m => m.id === p.id));
+    }, [apiProviders]);
+
     // Models modal state
     const [modelsModal, setModelsModal] = useState<{
         isOpen: boolean;
         provider: EmbeddingProviderItem | null;
     }>({ isOpen: false, provider: null });
+
+    // Benchmark state
+    const [benchmarkModal, setBenchmarkModal] = useState<{
+        isOpen: boolean;
+        modelId: string | null;
+        name: string | null;
+    }>({ isOpen: false, modelId: null, name: null });
 
     const handleToggleEnabled = async (providerId: string) => {
         const updatedProviders = apiProviders.map(p =>
@@ -98,85 +115,78 @@ const EmbeddingTab = () => {
         await saveConfig(updatedProviders);
     };
 
-    // Registry grouping
-    const localPluginTypes = useMemo(() =>
-        plugins_registry.filter(p => {
-            try {
-                return (new p() as any).options?.isLocal && (new p() as any).embed;
-            } catch { return false; }
-        }), []);
+    const runBenchmark = async (text: string) => {
+        const { modelId } = benchmarkModal;
+        if (!modelId || !localEmbedding[modelId]) {
+            throw new Error("No model loaded");
+        }
+
+        const start = performance.now();
+        const result = await localEmbedding[modelId].embed(text);
+        const end = performance.now();
+
+        const timeMs = end - start;
+        return {
+            timeMs,
+            dimension: result.embedding.length,
+            charsPerSec: Math.round((text.length / timeMs) * 1000),
+        };
+    };
 
     return (
-        <div className="space-y-8">
+        <div className="space-y-12">
             {/* Local Models Section */}
-            <div className="space-y-4">
+            <section className="space-y-6">
                 <div>
-                    <h3 className="text-base font-semibold mb-1.5">Local Models</h3>
+                    <h2 className="text-base font-semibold mb-1.5">Local Computing</h2>
                     <p className="text-sm text-muted">
-                        Manage local embedding models.
+                        On-device embedding models using Transformers.js.
                     </p>
                 </div>
                 <div className="grid grid-cols-1 gap-4">
-                    {localPluginTypes.map((PluginClass) => {
-                        const temp = new PluginClass() as any;
-                        const pluginId = temp.info.id;
-                        const isLoaded = !!localEmbedding[pluginId];
-                        const isLoading = isLocalLoading[pluginId];
-
-                        return (
-                            <Card key={pluginId} className="p-4">
-                                <div className="flex items-center justify-between">
-                                    <div>
-                                        <h4 className="font-medium">{temp.info.name}</h4>
-                                        <p className="text-xs text-muted">{temp.info.description}</p>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        {isLoading && <Spinner size="sm" />}
-                                        <Button
-                                            size="sm"
-                                            variant={isLoaded ? "ghost" : "primary"}
-                                            onPress={() => isLoaded ? unloadLocal(pluginId) : loadLocal(pluginId)}
-                                            isDisabled={isLoading}
-                                        >
-                                            {isLoaded ? "Unload" : "Load"}
-                                        </Button>
-                                    </div>
-                                </div>
-                                {isLoading && loadingProgress[pluginId] !== undefined && (
-                                    <div className="mt-2 h-1 w-full bg-accent/10 rounded-full overflow-hidden">
-                                        <div
-                                            className="h-full bg-accent transition-all duration-300"
-                                            style={{ width: `${loadingProgress[pluginId]}%` }}
-                                        />
-                                    </div>
-                                )}
-                            </Card>
-                        );
-                    })}
+                    {DEFAULT_EMBEDDING_MODELS.map((model) => (
+                        <LocalEmbeddingItem
+                            key={model.id}
+                            pluginId={model.pluginId}
+                            name={model.name}
+                            description={`Model Source: ${model.modelId}`}
+                            isLoaded={!!localEmbedding[model.id]}
+                            isLoading={isLocalLoading[model.id]}
+                            loadingProgress={loadingProgress[model.id]}
+                            onLoad={() => loadLocal(model)}
+                            onUnload={() => unloadLocal(model.id)}
+                            onBenchmark={() => setBenchmarkModal({ isOpen: true, modelId: model.id, name: model.name })}
+                        />
+                    ))}
                 </div>
-            </div>
+            </section>
 
             {/* API Providers Section */}
-            <div className="space-y-4">
+            <section className="space-y-6">
                 <div className="flex items-center justify-between">
                     <div>
-                        <h3 className="text-base font-semibold mb-1.5">API Providers</h3>
+                        <h2 className="text-base font-semibold mb-1.5">Cloud Providers</h2>
                         <p className="text-sm text-muted">
-                            Configure cloud-based embedding providers.
+                            Connect to external embedding APIs.
                         </p>
                     </div>
-                    <Button size="sm" variant="outline" onPress={handleOpenAddModal}>
+                    <Button variant="outline" onPress={handleOpenAddModal}>
                         Add Provider
                     </Button>
                 </div>
 
-                {apiProviders.length === 0 ? (
-                    <Card variant="secondary" className="p-6">
-                        <p className="text-center text-muted">No embedding providers configured</p>
+                {externalProviders.length === 0 ? (
+                    <Card variant="secondary">
+                        <Card.Content>
+                            <div className="flex flex-col items-center justify-center py-12 gap-4">
+                                <Database className="w-8 h-8 text-muted/40" />
+                                <p className="text-sm text-muted">No external providers configured.</p>
+                            </div>
+                        </Card.Content>
                     </Card>
                 ) : (
                     <div className="space-y-4">
-                        {apiProviders.map((provider) => (
+                        {externalProviders.map((provider) => (
                             <ProviderCard
                                 key={provider.id}
                                 provider={provider}
@@ -191,7 +201,7 @@ const EmbeddingTab = () => {
                         ))}
                     </div>
                 )}
-            </div>
+            </section>
 
             <EditProviderModal
                 isOpen={editModal.isOpen}
@@ -210,6 +220,13 @@ const EmbeddingTab = () => {
                 onOpenChange={handleCloseModelsModal}
                 onFetchModels={handleFetchModels}
                 onSave={handleSaveModels}
+            />
+
+            <BenchmarkModal
+                isOpen={benchmarkModal.isOpen}
+                onOpenChange={(open) => setBenchmarkModal(prev => ({ ...prev, isOpen: open }))}
+                modelName={benchmarkModal.name || ""}
+                onRunBenchmark={runBenchmark}
             />
         </div>
     );

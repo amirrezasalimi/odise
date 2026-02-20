@@ -21,22 +21,43 @@ async function initWorker(model: string, runtime: "webgpu" | "wasm", quantizatio
 
         extractor = null;
 
+        // Map quantization to Transformers.js dtypes
+        let dtype: any = "fp32";
+        if (quantization === "fp16") dtype = "fp16";
+        else if (quantization === "int8") dtype = "q8";
+        else if (quantization === "int4") dtype = "q4";
+
+        const fileProgress = new Map<string, number>();
+
         extractor = await pipeline("feature-extraction", model, {
             device: runtime,
-            dtype: quantization === "fp32" ? "fp32" : quantization === "fp16" ? "fp16" : quantization === "int8" ? "q8" : quantization === "int4" ? "q4" : "fp32",
+            dtype: dtype,
             progress_callback: (progressInfo: any) => {
-                const progress = progressInfo?.progress ?? 0;
-                self.postMessage({
-                    status: "progress",
-                    progress,
-                } satisfies WorkerResponse);
+                if (progressInfo.status === 'progress') {
+                    fileProgress.set(progressInfo.file, progressInfo.progress);
+
+                    // Multi-file progress aggregation
+                    let total = 0;
+                    fileProgress.forEach(p => total += p);
+                    const avgProgress = total / fileProgress.size;
+
+                    self.postMessage({
+                        status: "progress",
+                        progress: avgProgress,
+                    } satisfies WorkerResponse);
+                } else if (progressInfo.status === 'done') {
+                    fileProgress.set(progressInfo.file, 100);
+                }
             },
         });
 
         currentModel = model;
         self.postMessage({ status: "ready", device: runtime } satisfies WorkerResponse);
     } catch (e) {
+        extractor = null;
+        currentModel = null;
         const error = e instanceof Error ? e.message : String(e);
+        console.error("Worker Init Error Details:", e);
         self.postMessage({ status: "error", error } satisfies WorkerResponse);
     }
 }

@@ -3,14 +3,28 @@ import { plugins_registry } from "@/shared/constants/plugins";
 import { useState } from "react";
 import type { EmbeddingProvider } from "@odise/types";
 
+export interface LocalModelConfig {
+    id: string;
+    name: string;
+    pluginId: string;
+    modelId: string;
+    dimension: number;
+    runtime?: "webgpu" | "wasm";
+    quantization?: string;
+}
+
 export const useLocalEmbedding = () => {
     const { localEmbedding, setLocalEmbedding, removeLocalEmbedding } = useAppStore();
     const [loadingProgress, setLoadingProgress] = useState<Record<string, number>>({});
     const [isLoading, setIsLoading] = useState<Record<string, boolean>>({});
 
-    const loadLocal = async (pluginId: string, variantId?: string) => {
-        if (localEmbedding[pluginId]) {
-            await unloadLocal(pluginId);
+    const loadLocal = async (config: LocalModelConfig) => {
+        const { id, pluginId, modelId, runtime, quantization } = config;
+
+        // If another model is already loaded for this plugin, unload it?
+        // Or handle multiple instances? For now, let's allow co-existence if IDs differ.
+        if (localEmbedding[id]) {
+            await unloadLocal(id);
         }
 
         const PluginClass = plugins_registry.find(p => {
@@ -20,28 +34,38 @@ export const useLocalEmbedding = () => {
 
         if (!PluginClass) return;
 
-        setIsLoading(prev => ({ ...prev, [pluginId]: true }));
-        setLoadingProgress(prev => ({ ...prev, [pluginId]: 0 }));
+        setIsLoading(prev => ({ ...prev, [id]: true }));
+        setLoadingProgress(prev => ({ ...prev, [id]: 0 }));
 
         try {
             const instance = new PluginClass() as EmbeddingProvider;
-            if (instance.load) {
-                // For embedding, maybe we don't have variants yet but following the pattern
-                await instance.load((progress) => {
-                    setLoadingProgress(prev => ({ ...prev, [pluginId]: progress }));
+
+            // Configure the instance before loading
+            if (instance.setConfig) {
+                instance.setConfig({
+                    model: modelId,
+                    runtime: runtime || "wasm",
+                    quantization: quantization || "fp32"
                 });
             }
-            setLocalEmbedding(pluginId, instance);
+
+            if (instance.load) {
+                await instance.load(undefined, (progress) => {
+                    setLoadingProgress(prev => ({ ...prev, [id]: progress }));
+                });
+            }
+
+            setLocalEmbedding(id, instance);
         } catch (error) {
-            console.error(`Failed to load local embedding ${pluginId}:`, error);
+            console.error(`Failed to load local embedding ${id}:`, error);
         } finally {
-            setIsLoading(prev => ({ ...prev, [pluginId]: false }));
-            setLoadingProgress(prev => ({ ...prev, [pluginId]: 100 }));
+            setIsLoading(prev => ({ ...prev, [id]: false }));
+            setLoadingProgress(prev => ({ ...prev, [id]: 100 }));
         }
     };
 
-    const unloadLocal = async (pluginId: string) => {
-        const instance = localEmbedding[pluginId];
+    const unloadLocal = async (id: string) => {
+        const instance = localEmbedding[id];
         if (!instance) return;
 
         try {
@@ -49,13 +73,18 @@ export const useLocalEmbedding = () => {
                 await instance.unload();
             }
         } catch (error) {
-            console.error(`Failed to unload local embedding ${pluginId}:`, error);
+            console.error(`Failed to unload local embedding ${id}:`, error);
         } finally {
-            removeLocalEmbedding(pluginId);
+            removeLocalEmbedding(id);
             setLoadingProgress(prev => {
                 const next = { ...prev };
-                delete next[pluginId];
+                delete next[id];
                 return next;
+            });
+            setIsLoading(prev => {
+                const nextState = { ...prev };
+                delete nextState[id];
+                return nextState;
             });
         }
     };

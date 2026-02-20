@@ -106,7 +106,7 @@ const LLMTab = () => {
                         Configure cloud-based LLM providers.
                     </p>
                 </div>
-                <Button size="sm" variant="outline" onPress={handleOpenAddModal}>
+                <Button size="sm" className={"mr-12"} variant="outline" onPress={handleOpenAddModal}>
                     Add Provider
                 </Button>
             </div>
