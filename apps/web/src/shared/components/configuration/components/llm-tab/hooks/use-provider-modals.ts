@@ -51,11 +51,11 @@ export function useProviderModals({
     const [isSaving, setIsSaving] = useState(false);
 
     const handleOpenAddModal = () => {
-        // Use DEFAULT_API_LLM_ID as the default pluginId
+        // Use DEFAULT_API_LLM_ID as the default provider type
         const defaultProviderType = LLM_PROVIDER_TYPES.find(p => p.id === DEFAULT_API_LLM_ID) || LLM_PROVIDER_TYPES[0];
         const defaultProvider = {
             id: generateShortId(),
-            pluginId: defaultProviderType.id,
+            pluginId: defaultProviderType.pluginId || defaultProviderType.id,
             name: defaultProviderType.name,
             url: defaultProviderType.defaultUrl,
             apiKey: "",
@@ -80,13 +80,13 @@ export function useProviderModals({
     };
 
     const handleProviderTypeChange = (pluginId: string) => {
-        const providerType = LLM_PROVIDER_TYPES.find(p => p.id === pluginId);
+        const providerType = LLM_PROVIDER_TYPES.find(p => (p.pluginId || p.id) === pluginId);
         if (providerType) {
             setEditModal(prev => ({
                 ...prev,
                 provider: prev.provider ? {
                     ...prev.provider,
-                    pluginId: providerType.id,
+                    pluginId: providerType.pluginId || providerType.id,
                     name: providerType.name,
                     url: providerType.defaultUrl,
                 } : null,

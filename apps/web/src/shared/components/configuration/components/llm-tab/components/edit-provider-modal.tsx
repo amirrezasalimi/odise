@@ -54,8 +54,8 @@ export const EditProviderModal = ({
                                         <ListBox>
                                             {LLM_PROVIDER_TYPES.map((providerType) => (
                                                 <ListBox.Item
-                                                    key={providerType.id}
-                                                    id={providerType.id}
+                                                    key={providerType.pluginId || providerType.id}
+                                                    id={providerType.pluginId || providerType.id}
                                                     textValue={providerType.name}
                                                 >
                                                     {providerType.name}

@@ -1,6 +1,7 @@
 import KokoroTTSProvider from '@odise/kokoro-tts'
 import OpenAITTSProvider from '@odise/openai-tts'
-import SimpleEmbeddingProvider from '@odise/transformers-embedding'
+import TransformersEmbeddingProvider from '@odise/transformers-embedding'
+import OpenAIEmbeddingProvider from '@odise/openai-embedding'
 import KittenTTSProvider from '@odise/kitten-tts'
 import type { TTSProvider, EmbeddingProvider } from '@odise/types'
 
@@ -8,12 +9,13 @@ import type { TTSProvider, EmbeddingProvider } from '@odise/types'
 export type ProviderClass = new (...args: any[]) => TTSProvider | EmbeddingProvider;
 
 export const plugins_registry: ProviderClass[] = [
-    // tts  
+    // tts
     KokoroTTSProvider,
     OpenAITTSProvider,
     KittenTTSProvider,
     // embedding
-    SimpleEmbeddingProvider
+    TransformersEmbeddingProvider,
+    OpenAIEmbeddingProvider
 ]
 
 export const DEFAULT_EMBEDDING_MODELS = [
@@ -29,6 +31,6 @@ export const DEFAULT_EMBEDDING_MODELS = [
 
 export const DEFAULT_API_TTS_ID = "openai-tts";
 
-export const DEFAULT_API_EMBEDDING_ID = "openai-embedding";
+export const DEFAULT_API_EMBEDDING_ID = "openai";
 
-export const DEFAULT_API_LLM_ID = "openai-llm";
+export const DEFAULT_API_LLM_ID = "openai";
