@@ -37,7 +37,7 @@ export const useTTSConfig = () => {
         const localPlugins = plugins_registry.filter(p => {
             try {
                 const temp = new p() as any;
-                return temp.options?.isLocal;
+                return temp.info?.type === "tts" && temp.options?.isLocal;
             } catch { return false; }
         });
 

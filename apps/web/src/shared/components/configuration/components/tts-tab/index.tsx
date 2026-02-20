@@ -24,13 +24,23 @@ const TTSTab = () => {
 
     // Group registry
     const localPluginTypes = useMemo(() =>
-        plugins_registry.filter(p => (new p() as any).options?.isLocal), []);
+        plugins_registry.filter(p => {
+            try {
+                const temp = new p() as any;
+                return temp.info?.type === "tts" && temp.options?.isLocal;
+            } catch { return false; }
+        }), []);
 
     const localPluginIds = useMemo(() =>
         localPluginTypes.map(p => (new p() as any).info.id), [localPluginTypes]);
 
     const apiPluginTypes = useMemo(() =>
-        plugins_registry.filter(p => !(new p() as any).options?.isLocal), []);
+        plugins_registry.filter(p => {
+            try {
+                const temp = new p() as any;
+                return temp.info?.type === "tts" && !temp.options?.isLocal;
+            } catch { return false; }
+        }), []);
 
     const apiProviders = useMemo(() =>
         providers.filter(p => !localPluginIds.includes(p.pluginId)),

@@ -15,8 +15,10 @@ export const useLocalTTS = () => {
         }
 
         const PluginClass = plugins_registry.find(p => {
-            const temp = new p() as any;
-            return temp.info?.id === pluginId && temp.options?.isLocal;
+            try {
+                const temp = new p() as any;
+                return temp.info?.type === "tts" && temp.info?.id === pluginId && temp.options?.isLocal;
+            } catch { return false; }
         });
 
         if (!PluginClass) return;

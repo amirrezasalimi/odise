@@ -8,7 +8,12 @@ export const useProviderData = () => {
     const [isLoading, setIsLoading] = useState<Record<string, boolean>>({});
 
     const getOrCreatedInstance = (pluginId: string, apiConfig?: { apiKey: string, url: string }) => {
-        const PluginClass = plugins_registry.find(p => (new p() as any).info?.id === pluginId);
+        const PluginClass = plugins_registry.find(p => {
+            try {
+                const temp = new p() as any;
+                return temp.info?.type === "tts" && temp.info?.id === pluginId;
+            } catch { return false; }
+        });
         if (!PluginClass) return null;
         const instance = new PluginClass() as any;
         if (apiConfig && instance.setConfig) {
