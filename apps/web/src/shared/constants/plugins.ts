@@ -1,6 +1,7 @@
 import KokoroTTSProvider from '@odise/kokoro-tts'
 import OpenAITTSProvider from '@odise/openai-tts'
 import SimpleEmbeddingProvider from '@odise/transformers-embedding'
+import KittenTTSProvider from '@odise/kitten-tts'
 import type { TTSProvider, EmbeddingProvider } from '@odise/types'
 
 // Type for provider class constructors that can be instantiated
@@ -10,6 +11,7 @@ export const plugins_registry: ProviderClass[] = [
     // tts  
     KokoroTTSProvider,
     OpenAITTSProvider,
+    KittenTTSProvider,
     // embedding
     SimpleEmbeddingProvider
 ]
