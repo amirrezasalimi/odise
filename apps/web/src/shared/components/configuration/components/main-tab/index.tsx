@@ -1,29 +1,21 @@
-import { useQuery, useMutation } from "convex/react";
-import { api } from "@odise/backend/convex/_generated/api";
-import { CONFIG_KEYS } from "@/shared/constants/config";
-import { LANGUAGES } from "@/shared/constants/languages";
-import { Label, ListBox, Autocomplete, SearchField, useFilter, EmptyState } from "@heroui/react";
+import { Label, ListBox, Autocomplete, SearchField, useFilter, EmptyState, Switch, Select } from "@heroui/react";
 import type { Key } from "@heroui/react";
+import { LANGUAGES } from "@/shared/constants/languages";
+import { useMainTab } from "./hooks/use-main-tab";
 
 const MainTab = () => {
-    const aiLanguage = useQuery(api.apis.config.getConfig, {
-        key: CONFIG_KEYS.ai_language,
-    });
-    const setConfig = useMutation(api.apis.config.setConfig);
     const { contains } = useFilter({ sensitivity: "base" });
-
-    const selectedKey: Key | null = (aiLanguage as Key | null) ?? "en";
-
-    const handleLanguageChange = async (key: Key | Key[] | null) => {
-        if (typeof key === "string") {
-            await setConfig({
-                key: CONFIG_KEYS.ai_language,
-                value: key,
-            });
-        }
-    };
-
-    const selectedLanguage = LANGUAGES.find((lang) => lang.code === (aiLanguage ?? "en"));
+    const {
+        selectedKey,
+        selectedLanguage,
+        handleLanguageChange,
+        isEmbeddingEnabled,
+        selectedProviderId,
+        selectedProvider,
+        enabledEmbeddingProviders,
+        handleEmbeddingToggle,
+        handleProviderChange,
+    } = useMainTab();
 
     return (
         <div className="space-y-6">
@@ -88,6 +80,63 @@ const MainTab = () => {
                             </Autocomplete.Filter>
                         </Autocomplete.Popover>
                     </Autocomplete>
+                </div>
+
+                <div className="w-full max-w-md space-y-4">
+                    <div className="flex items-center gap-3">
+                        <Switch
+                            isSelected={isEmbeddingEnabled}
+                            onChange={handleEmbeddingToggle}
+                        >
+                            <Switch.Control>
+                                <Switch.Thumb />
+                            </Switch.Control>
+                        </Switch>
+                        <Label className="text-sm">Enable Chat Source Embedding</Label>
+                    </div>
+
+                    {isEmbeddingEnabled && (
+                        <div>
+                            <Label htmlFor="embedding-provider">Embedding Provider</Label>
+                            <Select
+                                id="embedding-provider"
+                                placeholder="Select a provider"
+                                selectionMode="single"
+                                selectedKey={selectedProviderId}
+                                onSelectionChange={handleProviderChange}
+                                className="w-full"
+                                variant="secondary"
+                            >
+                                <Select.Trigger>
+                                    <Select.Value>
+                                        {({ defaultChildren, isPlaceholder }) => {
+                                            if (!isPlaceholder && selectedProvider) {
+                                                return selectedProvider.name;
+                                            }
+                                            return defaultChildren;
+                                        }}
+                                    </Select.Value>
+                                    <Select.Indicator />
+                                </Select.Trigger>
+                                <Select.Popover>
+                                    <ListBox
+                                        renderEmptyState={() => <EmptyState>No providers found</EmptyState>}
+                                    >
+                                        {enabledEmbeddingProviders.map((provider) => (
+                                            <ListBox.Item
+                                                key={provider.id}
+                                                id={provider.id}
+                                                textValue={provider.name}
+                                            >
+                                                <span className="font-medium">{provider.name}</span>
+                                                <ListBox.ItemIndicator />
+                                            </ListBox.Item>
+                                        ))}
+                                    </ListBox>
+                                </Select.Popover>
+                            </Select>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>
