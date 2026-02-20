@@ -6,17 +6,20 @@ import {
     Mic,
     Brain,
     Github,
-    X
+    X,
+    Fingerprint
 } from "lucide-react";
 import { useState } from "react";
 import TTSProvidersTab from "./components/tts-tab";
 import LLMTab from "./components/llm-tab";
+import EmbeddingTab from "./components/embedding-tab";
 import MainTab from "./components/main-tab";
 
 const tabs = [
     { id: "main", label: "Main", icon: Home },
     { id: "tts", label: "TTS Providers", icon: Mic },
     { id: "llm", label: "LLM Providers", icon: Brain },
+    { id: "embedding", label: "Embedding", icon: Fingerprint },
 ] as const;
 
 const ConfigurationModal = () => {
@@ -87,6 +90,10 @@ const ConfigurationModal = () => {
 
                                 {selectedTab === "llm" && (
                                     <LLMTab />
+                                )}
+
+                                {selectedTab === "embedding" && (
+                                    <EmbeddingTab />
                                 )}
                             </div>
                         </div>

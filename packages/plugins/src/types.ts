@@ -4,6 +4,7 @@ export interface LoadedPlugins {
     tts: TTSProvider[]
 }
 export interface PluginInfo {
+    type: "tts" | "embedding" | "llm"
     name: string
     id: string
     author: string

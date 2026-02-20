@@ -35,6 +35,7 @@ interface WorkerResponse {
 
 export default class KokoroTTSProvider extends TTSProvider {
     info: PluginInfo = {
+        type: "tts",
         id: "kokoro-tts",
         name: "Kokoro TTS",
         author: "hexgrad",

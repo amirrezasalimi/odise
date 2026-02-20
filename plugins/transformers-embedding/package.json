@@ -1,0 +1,11 @@
+{
+    "name": "@odise/transformers-embedding",
+    "version": "0.0.1",
+    "type": "module",
+    "main": "src/index.ts",
+    "types": "src/index.ts",
+    "dependencies": {
+        "@huggingface/transformers": "^3.8.1",
+        "@odise/types": "workspace:*"
+    }
+}

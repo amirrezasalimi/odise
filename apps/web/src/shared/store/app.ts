@@ -1,11 +1,15 @@
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
-import type { TTSProvider } from "@odise/types";
+import type { TTSProvider, EmbeddingProvider } from "@odise/types";
 
 interface StateAndActions {
     localTTS: Record<string, TTSProvider>;
     setLocalTTS: (pluginId: string, instance: TTSProvider) => void;
     removeLocalTTS: (pluginId: string) => void;
+
+    localEmbedding: Record<string, EmbeddingProvider>;
+    setLocalEmbedding: (pluginId: string, instance: EmbeddingProvider) => void;
+    removeLocalEmbedding: (pluginId: string) => void;
 }
 
 const useAppStore = create<StateAndActions>()(
@@ -18,6 +22,16 @@ const useAppStore = create<StateAndActions>()(
         removeLocalTTS: (pluginId) =>
             set((state) => {
                 delete state.localTTS[pluginId];
+            }),
+
+        localEmbedding: {},
+        setLocalEmbedding: (pluginId, instance) =>
+            set((state) => {
+                state.localEmbedding[pluginId] = instance;
+            }),
+        removeLocalEmbedding: (pluginId) =>
+            set((state) => {
+                delete state.localEmbedding[pluginId];
             }),
     })),
 );

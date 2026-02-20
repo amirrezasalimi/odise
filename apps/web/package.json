@@ -21,6 +21,7 @@
     "@odise/env": "workspace:*",
     "@odise/kokoro-tts": "workspace:*",
     "@odise/openai-tts": "workspace:*",
+    "@odise/transformers-embedding": "workspace:*",
     "@opendocsg/pdf2md": "^0.2.4",
     "@orpc/client": "catalog:",
     "@orpc/server": "catalog:",

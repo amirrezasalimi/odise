@@ -49,5 +49,5 @@ export interface EmbeddingProviderItem {
 }
 
 export interface EmbeddingProvidersConfig {
-    providers: LLMProviderItem[];
+    providers: EmbeddingProviderItem[];
 }
