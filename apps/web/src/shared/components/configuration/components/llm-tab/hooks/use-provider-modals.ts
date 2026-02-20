@@ -2,6 +2,7 @@ import { useState } from "react";
 import OpenAI from "openai";
 import type { LLMProviderItem } from "@/shared/types/config";
 import { LLM_PROVIDER_TYPES } from "../constants/provider-types";
+import { DEFAULT_API_LLM_ID } from "@/shared/constants/plugins";
 
 // Helper function to generate a short random ID
 function generateShortId(): string {
@@ -50,12 +51,13 @@ export function useProviderModals({
     const [isSaving, setIsSaving] = useState(false);
 
     const handleOpenAddModal = () => {
-        const firstProviderType = LLM_PROVIDER_TYPES[0];
+        // Use DEFAULT_API_LLM_ID as the default pluginId
+        const defaultProviderType = LLM_PROVIDER_TYPES.find(p => p.id === DEFAULT_API_LLM_ID) || LLM_PROVIDER_TYPES[0];
         const defaultProvider = {
             id: generateShortId(),
-            pluginId: firstProviderType.id,
-            name: firstProviderType.name,
-            url: firstProviderType.defaultUrl,
+            pluginId: defaultProviderType.id,
+            name: defaultProviderType.name,
+            url: defaultProviderType.defaultUrl,
             apiKey: "",
             enabled: false,
             models: [],

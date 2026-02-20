@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Modal, Button, Input, Select, Label, ListBox } from "@heroui/react";
 import type { TTSProviderItem } from "@/shared/types/config";
+import { DEFAULT_API_TTS_ID } from "@/shared/constants/plugins";
 
 interface AddProviderModalProps {
     isOpen: boolean;
@@ -31,8 +32,13 @@ const AddProviderModal = ({
             setUrl(editProvider.url);
             setApiKey(editProvider.apiKey);
         } else if (isOpen && pluginTypes.length > 0) {
-            const first = pluginTypes[0];
-            const inst = new first() as any;
+            // Use DEFAULT_API_TTS_ID as the default pluginId
+            const defaultPlugin = pluginTypes.find((p: any) => {
+                try { return (new p() as any).info?.id === DEFAULT_API_TTS_ID; } catch { return false; }
+            });
+
+            const pluginClass = defaultPlugin || pluginTypes[0];
+            const inst = new pluginClass() as any;
             setSelectedPluginId(inst.info.id);
             setName(inst.info.name || "");
             setUrl(inst.options?.url || inst.info?.url || "");
@@ -43,7 +49,7 @@ const AddProviderModal = ({
             setUrl("");
             setApiKey("");
         }
-    }, [editProvider, isOpen]);
+    }, [editProvider, isOpen, pluginTypes]);
 
     const handleSave = async () => {
         if (editProvider && onUpdate) {

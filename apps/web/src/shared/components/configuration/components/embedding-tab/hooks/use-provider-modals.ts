@@ -2,6 +2,7 @@ import { useState } from "react";
 import OpenAI from "openai";
 import type { EmbeddingProviderItem } from "@/shared/types/config";
 import { EMBEDDING_PROVIDER_TYPES } from "../constants/provider-types";
+import { DEFAULT_API_EMBEDDING_ID } from "@/shared/constants/plugins";
 
 function generateShortId(): string {
     return Math.random().toString(36).substr(2, 9);
@@ -49,12 +50,13 @@ export function useProviderModals({
     const [isSaving, setIsSaving] = useState(false);
 
     const handleOpenAddModal = () => {
-        const firstProviderType = EMBEDDING_PROVIDER_TYPES[0];
+        // Use DEFAULT_API_EMBEDDING_ID as the default pluginId
+        const defaultProviderType = EMBEDDING_PROVIDER_TYPES.find(p => p.id === DEFAULT_API_EMBEDDING_ID) || EMBEDDING_PROVIDER_TYPES[0];
         const defaultProvider = {
             id: generateShortId(),
-            pluginId: firstProviderType.id,
-            name: firstProviderType.name,
-            url: firstProviderType.defaultUrl,
+            pluginId: defaultProviderType.id,
+            name: defaultProviderType.name,
+            url: defaultProviderType.defaultUrl,
             apiKey: "",
             enabled: true,
             models: [],

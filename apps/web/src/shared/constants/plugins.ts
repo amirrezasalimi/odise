@@ -26,3 +26,9 @@ export const DEFAULT_EMBEDDING_MODELS = [
     },
 ];
 
+
+export const DEFAULT_API_TTS_ID = "openai-tts";
+
+export const DEFAULT_API_EMBEDDING_ID = "openai-embedding";
+
+export const DEFAULT_API_LLM_ID = "openai-llm";
