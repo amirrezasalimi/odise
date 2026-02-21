@@ -23,7 +23,6 @@ export default defineSchema({
         content: v.string(),
         chunkIndex: v.number(),
         embedding: v.optional(v.array(v.float64())),
-        embedding_done: v.boolean(),
         status: v.string(), // "pending" | "processing" | "complete"
         tokenCount: v.number()
     }).index("by_source", ["notebookSourceId"]),

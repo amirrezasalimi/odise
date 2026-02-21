@@ -96,7 +96,6 @@ export const preSaveChunks = mutation({
                 notebookSourceId: args.notebookSourceId,
                 content: c.content,
                 chunkIndex: c.chunkIndex,
-                embedding_done: false,
                 status: "pending",
                 tokenCount: c.tokenCount,
             });
@@ -123,7 +122,6 @@ export const setChunkComplete = mutation({
     handler: async (ctx, args) => {
         await ctx.db.patch(args.chunkId, {
             embedding: args.embedding,
-            embedding_done: true,
             status: "complete",
         });
     },
