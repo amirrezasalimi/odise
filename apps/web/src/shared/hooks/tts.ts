@@ -48,6 +48,31 @@ const buildNonLocalTTS = (items: TTSProviderItem[]): ResolvedTTSProvider[] =>
 const buildLocalTTS = (localTTS: Record<string, TTSProvider>): ResolvedTTSProvider[] =>
     Object.entries(localTTS).map(([pluginId, instance]) => ({ instance, isLocal: true, pluginId, id: pluginId }));
 
+const buildLocalTTSFromRegistry = (items: TTSProviderItem[]): ResolvedTTSProvider[] =>
+    plugins_registry
+        .map(Cls => {
+            try {
+                const t = new Cls() as PluginInstance;
+                if (t.info?.type === "tts" && t.options?.isLocal === true) {
+                    const config = items.find(p => p.pluginId === t.info.id);
+                    const instance = new Cls() as TTSProvider;
+                    if (config && instance.setConfig) {
+                        instance.setConfig({ apiKey: config.apiKey, url: config.url });
+                    }
+                    return {
+                        instance,
+                        isLocal: true,
+                        pluginId: t.info.id,
+                        id: t.info.id,
+                    };
+                }
+                return null;
+            } catch {
+                return null;
+            }
+        })
+        .filter((p): p is ResolvedTTSProvider => p !== null);
+
 const isTTSInSync = (pluginId: string, instance: TTSProvider, items: TTSProviderItem[]) => {
     if (!findPluginClass(pluginId, true, "tts")) return false;
     const config = items.find(p => p.pluginId === pluginId);
@@ -56,7 +81,7 @@ const isTTSInSync = (pluginId: string, instance: TTSProvider, items: TTSProvider
 };
 
 const useTTS = () => {
-    const { localTTS, removeLocalTTS } = useAppStore();
+    const { localTTS, removeLocalTTS, setLocalTTS } = useAppStore();
     const ttsConfigRaw = useQuery(api.apis.config.getConfig, { key: CONFIG_KEYS.api_tts_providers });
 
     const providers = useMemo(() => {
@@ -82,7 +107,7 @@ const useTTS = () => {
             const raw = await convex.query(api.apis.config.getConfig, { key: CONFIG_KEYS.api_tts_providers });
             const items = parseTTSConfig(raw as string);
             await syncLocal(items);
-            return [...buildLocalTTS(useAppStore.getState().localTTS), ...buildNonLocalTTS(items)];
+            return [...buildLocalTTSFromRegistry(items), ...buildNonLocalTTS(items)];
         });
     }, [ttsConfigRaw, localTTS, syncLocal]);
 
@@ -96,12 +121,26 @@ const useTTS = () => {
             const raw = await convex.query(api.apis.config.getConfig, { key: CONFIG_KEYS.api_tts_providers });
             const items = parseTTSConfig(raw as string);
             await syncLocal(items);
-            const fresh = useAppStore.getState().localTTS;
-            if (fresh[id]) return { instance: fresh[id], isLocal: true, pluginId: id, id };
+            const freshLocal = useAppStore.getState().localTTS;
+            if (freshLocal[id]) return { instance: freshLocal[id], isLocal: true, pluginId: id, id };
+
+            // Try to find and load local provider from registry
+            const Cls = findPluginClass(id, true, "tts");
+            if (Cls) {
+                const config = items.find(p => p.pluginId === id);
+                const instance = new Cls() as TTSProvider;
+                if (instance.load) {
+                    await instance.load(config?.selectedModelId, () => { });
+                }
+                instance.selectedVariantId = config?.selectedModelId;
+                setLocalTTS(id, instance);
+                return { instance, isLocal: true, pluginId: id, id };
+            }
+
             const item = items.find(p => p.id === id);
             return item ? buildNonLocalTTS([item])[0] : undefined;
         });
-    }, [ttsConfigRaw, localTTS, syncLocal]);
+    }, [ttsConfigRaw, localTTS, syncLocal, setLocalTTS]);
 
     return { localTTS, providers, getProviders, getProvider };
 };

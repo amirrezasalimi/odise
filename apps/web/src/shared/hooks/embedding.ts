@@ -4,7 +4,7 @@ import { api } from "@odise/backend/convex/_generated/api";
 import type { EmbeddingProvider } from "@odise/types";
 import { convex } from "@/shared/components/layout/index";
 import useAppStore from "../store/app";
-import { plugins_registry } from "../constants/plugins";
+import { plugins_registry, DEFAULT_EMBEDDING_MODELS } from "../constants/plugins";
 import { CONFIG_KEYS } from "../constants/config";
 import type { EmbeddingProvidersConfig, EmbeddingProviderItem } from "../types/config";
 import { Mutex } from "../utils/mutex";
@@ -53,6 +53,30 @@ const buildLocalEmbedding = (local: Record<string, EmbeddingProvider>): Resolved
         instance, isLocal: true, pluginId: getPluginId(instance, id), id,
     }));
 
+const buildLocalEmbeddingFromRegistry = (items: EmbeddingProviderItem[]): ResolvedEmbeddingProvider[] =>
+    DEFAULT_EMBEDDING_MODELS.map(model => {
+        const Cls = findPluginClass(model.pluginId, true);
+        if (!Cls) return null;
+        const instance = new Cls() as EmbeddingProvider;
+        if (instance.setConfig) {
+            instance.setConfig({
+                model: model.modelId,
+                runtime: "wasm",
+                quantization: "fp32"
+            });
+        }
+        const config = items.find(p => p.pluginId === model.pluginId);
+        return {
+            instance,
+            isLocal: true,
+            pluginId: model.pluginId,
+            id: model.id,
+            config: {
+                enabled: config?.enabled ?? true,
+            }
+        } as ResolvedEmbeddingProvider
+    }).filter((p): p is ResolvedEmbeddingProvider => p !== null);
+
 const isEmbeddingInSync = (id: string, instance: EmbeddingProvider, items: EmbeddingProviderItem[]) => {
     if (!findPluginClass(getPluginId(instance, id), true)) return false;
     const config = items.find(p => p.id === id);
@@ -61,7 +85,7 @@ const isEmbeddingInSync = (id: string, instance: EmbeddingProvider, items: Embed
 };
 
 const useEmbedding = () => {
-    const { localEmbedding, removeLocalEmbedding } = useAppStore();
+    const { localEmbedding, removeLocalEmbedding, setLocalEmbedding } = useAppStore();
     const embeddingConfigRaw = useQuery(api.apis.config.getConfig, { key: CONFIG_KEYS.embedding_providers });
 
 
@@ -81,9 +105,13 @@ const useEmbedding = () => {
         }
         return freshMutex.run(async () => {
             const raw = await convex.query(api.apis.config.getConfig, { key: CONFIG_KEYS.embedding_providers });
+
             const items = parseEmbeddingConfig(raw as string);
+            console.log("raw", raw);
+            console.log("items", items);
+
             await syncLocal(items);
-            return [...buildLocalEmbedding(useAppStore.getState().localEmbedding), ...buildNonLocalEmbedding(items)];
+            return [...buildLocalEmbeddingFromRegistry(items), ...buildNonLocalEmbedding(items)];
         });
     }, [embeddingConfigRaw, localEmbedding, syncLocal]);
 
@@ -99,10 +127,38 @@ const useEmbedding = () => {
             await syncLocal(items);
             const freshLocal = useAppStore.getState().localEmbedding;
             if (freshLocal[id]) return { instance: freshLocal[id], isLocal: true, pluginId: getPluginId(freshLocal[id], id), id };
+
+            // Try to find and load local provider from DEFAULT_EMBEDDING_MODELS
+            const defaultModel = DEFAULT_EMBEDDING_MODELS.find(m => m.id === id);
+            if (defaultModel) {
+                const Cls = findPluginClass(defaultModel.pluginId, true);
+                if (Cls) {
+                    const instance = new Cls() as EmbeddingProvider;
+                    if (instance.setConfig) {
+                        instance.setConfig({
+                            model: defaultModel.modelId,
+                            runtime: "wasm",
+                            quantization: "fp32"
+                        });
+                    }
+                    if (instance.load) {
+                        await instance.load(undefined, () => { });
+                    }
+                    instance.selectedVariantId = defaultModel.modelId;
+                    setLocalEmbedding(id, instance);
+                    return { instance, isLocal: true, pluginId: defaultModel.pluginId, id };
+                }
+            }
+
             const item = items.find(p => p.id === id);
             return item ? buildNonLocalEmbedding([item])[0] : undefined;
         });
-    }, [embeddingConfigRaw, localEmbedding, syncLocal]);
+    }, [embeddingConfigRaw, localEmbedding, syncLocal, setLocalEmbedding]);
+
+    const providers = useMemo(() => {
+        const items = parseEmbeddingConfig(embeddingConfigRaw as string);
+        return [...buildLocalEmbedding(localEmbedding), ...buildNonLocalEmbedding(items)];
+    }, [embeddingConfigRaw, localEmbedding]);
 
     return { localEmbedding, providers, getProviders, getProvider };
 };

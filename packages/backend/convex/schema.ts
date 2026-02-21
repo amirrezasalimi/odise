@@ -22,15 +22,11 @@ export default defineSchema({
         notebookSourceId: v.id("notebookSources"),
         content: v.string(),
         chunkIndex: v.number(),
-        chunk: v.string(),
-        embedding: v.array(v.float64()),
+        embedding: v.optional(v.array(v.float64())),
         embedding_done: v.boolean(),
+        status: v.string(), // "pending" | "processing" | "complete"
         tokenCount: v.number()
-    }).vectorIndex("by_embedding", {
-        vectorField: "embedding",
-        dimensions: 1536,
-        filterFields: ["embedding",],
-    }),
+    }).index("by_source", ["notebookSourceId"]),
     notebookItems: defineTable({
         notebookId: v.id("notebooks"),
         type: v.string(), // audio-overview
