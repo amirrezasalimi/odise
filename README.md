@@ -12,14 +12,14 @@ Full open-source NotebookLM alternative
 - TTS Providers ✅
   - Kokoro ✅
   - OpenAI compatible ✅
-  - Pocket TTS
-  - Kitten TTS
+  - Kitten TTS ✅
+  - Pocket TTS + voice clone [soon]
 - Main Config
-  - Default language
+  - Default language ✅
 - Add source
-  - File upload
-  - List UI & raw content modal
-  - Summarize with description + emoji
+  - File upload ✅
+  - List UI & raw content modal ✅
+  - Summarize with description + emoji ✅
 
 ### Hub
 - Audio overview
