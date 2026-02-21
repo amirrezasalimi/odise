@@ -3,6 +3,7 @@ import { ConvexProvider, ConvexReactClient } from 'convex/react';
 import { env } from "@odise/env/web";
 import ConfigurationModal from '../configuration';
 import PluginLoaderWrapper from './plugin-loader';
+import { Toaster } from 'sonner';
 
 export const convex = new ConvexReactClient(env.VITE_CONVEX_URL);
 
@@ -16,6 +17,7 @@ export const Layout = ({
         <ConvexProvider client={convex}>
             <PluginLoaderWrapper>
                 {children}
+                <Toaster position="bottom-right" />
             </PluginLoaderWrapper>
             <ConfigurationModal />
         </ConvexProvider>
