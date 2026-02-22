@@ -107,6 +107,9 @@ const Dashboard = () => {
                                             {notebook.description}
                                         </p>
                                     )}
+                                    <div className="mt-auto pt-3 text-xs text-muted-foreground">
+                                        {(notebook as any).sourceCount ?? 0} sources
+                                    </div>
                                 </Card.Content>
                             </Card>
                         </Link>
@@ -156,6 +159,9 @@ const Dashboard = () => {
                                                     {notebook.description}
                                                 </p>
                                             )}
+                                        </div>
+                                        <div className="text-xs text-muted-foreground shrink-0">
+                                            {(notebook as any).sourceCount ?? 0} sources
                                         </div>
                                     </div>
                                 </Card.Content>

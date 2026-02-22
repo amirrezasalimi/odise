@@ -3,8 +3,23 @@ import { v } from "convex/values";
 
 export const getNotebooks = query({
     handler: async (ctx) => {
-        const documents = await ctx.db.query("notebooks").order("desc").collect();
-        return documents;
+        const notebooks = await ctx.db.query("notebooks").order("desc").collect();
+
+        // Get source count for each notebook
+        const notebooksWithCounts = await Promise.all(
+            notebooks.map(async (notebook) => {
+                const sources = await ctx.db
+                    .query("notebookSources")
+                    .withIndex("by_notebookId", (q) => q.eq("notebookId", notebook._id))
+                    .collect();
+                return {
+                    ...notebook,
+                    sourceCount: sources.length,
+                };
+            })
+        );
+
+        return notebooksWithCounts;
     },
 });
 
@@ -39,7 +54,7 @@ export const addSource = mutation({
             url: args.url,
             type: args.type,
             isProcessing: false,
-            storageId: args.storageId,
+            storageId: args.storageId as any,
             rawContent: args.rawContent,
         });
         return sourceId;
